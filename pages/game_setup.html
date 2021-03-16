@@ -7,37 +7,42 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-
+    <!-- Our own custom made css -->
+    <link href="../styles/main.css" rel="stylesheet">
     <title>Game - Chess AI</title>
   </head>
   <body class="bg-dark">
     <div class="container">
-
-      <div class="row">
+      <div class="row my-5">
         <div class="col">
-          <h1 class="text-white">Welcome to the new page!</h1>
-          <h1 class="text-white">Now please play!</h1>
+          <h1 class="text-center text-white">Game Setup</h1>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col">
-          <a class="btn btn-secondary" role="button" href="#">Lool</a>
+      <div class="row justify-content-center">
+        <div class="col-8">
+          <div class="card difficulty-container shadow-lg">
+            <div class="card-body">
+              <h4 class="card-title text-center">Sværhedsgrad</h4>
+              <div class="row">
+                <p class="card-text text-center">Nu skal du vælge...</p>
+              </div>
+              <div class="row px-5 mt-2">
+                <span class="badge rounded-pill bg-primary p-4">
+                  <input type="range" class="form-range" min="0" max="5">
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col-6">
-          <p class="text-white">loool</p>
-        </div>
-        <div class="col-6">
-          <p class="text-white">Oh snap</p>
-        </div>
-      </div>
-
     </div>
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script>
+      // background-color: #0d6efd;
+
+    </script>
   </body>
 </html>
