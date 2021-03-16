@@ -7,6 +7,8 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
     <!-- Our own custom made css -->
     <link href="../styles/main.css" rel="stylesheet">
     <title>Game - Chess AI</title>
@@ -18,31 +20,71 @@
           <h1 class="text-center text-white">Game Setup</h1>
         </div>
       </div>
-
-      <div class="row justify-content-center">
-        <div class="col-8">
-          <div class="card difficulty-container shadow-lg">
-            <div class="card-body">
-              <h4 class="card-title text-center">Sværhedsgrad</h4>
-              <div class="row">
-                <p class="card-text text-center">Nu skal du vælge...</p>
-              </div>
-              <div class="row px-5 mt-2">
-                <span class="badge rounded-pill bg-primary p-4">
-                  <input type="range" class="form-range" min="0" max="5">
-                </span>
+      <form action="#" method="POST">
+        <div class="row justify-content-center">
+          <div class="col-8">
+            <div class="card difficulty-container shadow-lg">
+              <div class="card-body">
+                <h4 class="card-title text-center">Sværhedsgrad</h4>
+                <div class="row">
+                  <p class="card-text text-center">Nu skal du vælge...</p>
+                </div>
+                <div class="row px-5 mt-2">
+                  <span class="badge rounded-pill p-4" id="difficulty-form-badge">
+                    <div class="row">
+                      <div class="col-1">
+                        <i class="proper-icon-size bi bi-caret-left-fill"></i>
+                      </div>
+                      <div class="col">
+                        <input value="0" id="difficulty" type="range" class="form-range" min="0" max="6">
+                      </div>
+                      <div class="col-1">
+                        <i class="proper-icon-size bi bi-caret-right-fill"></i>
+                      </div>
+                    </div>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+        <div class="row mt-5">
+          <div class="col text-center">
+            <button type="submit" class="btn btn-primary btn-lg">Begynd Spil</button>
+          </div>
+        </div>
+      </form>
     </div>
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
     <script>
-      // background-color: #0d6efd;
+      // Setup and retrieve the proper html elements
+      const difficultyFormEl = document.getElementById("difficulty");
+      const difficultyFormBadgeEl = document.getElementById("difficulty-form-badge");
+      const upperLimit = 6;
 
+      const calculateProperColorRange = function (rangeVal) {
+        const Red = 255 * (rangeVal / upperLimit);
+        const Green = 255 - (255 * (rangeVal / upperLimit));
+        const Blue = 0;
+
+        return [Red, Green, Blue];
+      }
+
+      // Setup the colors the first time!
+      const colorArr = calculateProperColorRange(0);
+      difficultyFormBadgeEl.style.background = `rgb(${colorArr[0]}, ${colorArr[1]}, ${colorArr[2]})`;
+
+
+      // Here we register an event listener to the range form input tag,
+      // to capture the difficulty level the user has specified.
+      difficultyFormEl.addEventListener("mouseup", function(event) {
+        const rangeVal = event.target.value;
+        const colorArr = calculateProperColorRange(rangeVal);
+
+      difficultyFormBadgeEl.style.background = `rgb(${colorArr[0]}, ${colorArr[1]}, ${colorArr[2]})`;
+      });
     </script>
   </body>
 </html>
