@@ -33,13 +33,13 @@
                   <span class="badge rounded-pill p-4" id="difficulty-form-badge">
                     <div class="row">
                       <div class="col-1">
-                        <i class="proper-icon-size bi bi-caret-left-fill"></i>
+                        <i id="left-arrow" class="proper-icon-size bi bi-caret-left-fill"></i>
                       </div>
                       <div class="col">
                         <input value="0" id="difficulty" type="range" class="form-range" min="0" max="6">
                       </div>
                       <div class="col-1">
-                        <i class="proper-icon-size bi bi-caret-right-fill"></i>
+                        <i id="right-arrow" class="proper-icon-size bi bi-caret-right-fill"></i>
                       </div>
                     </div>
                   </span>
@@ -62,29 +62,39 @@
       // Setup and retrieve the proper html elements
       const difficultyFormEl = document.getElementById("difficulty");
       const difficultyFormBadgeEl = document.getElementById("difficulty-form-badge");
+
+      const leftArrow = document.getElementById("left-arrow");
+      const rightArrow = document.getElementById("right-arrow");
+
       const upperLimit = 6;
 
-      const calculateProperColorRange = function (rangeVal) {
+
+      const setProperBadgeColor = function(rangeVal) {
         const Red = 255 * (rangeVal / upperLimit);
         const Green = 255 - (255 * (rangeVal / upperLimit));
         const Blue = 0;
 
-        return [Red, Green, Blue];
+        difficultyFormBadgeEl.style.background = `rgb(${Red}, ${Green}, ${Blue})`;
       }
 
       // Setup the colors the first time!
-      const colorArr = calculateProperColorRange(0);
-      difficultyFormBadgeEl.style.background = `rgb(${colorArr[0]}, ${colorArr[1]}, ${colorArr[2]})`;
-
+      setProperBadgeColor(0);
 
       // Here we register an event listener to the range form input tag,
       // to capture the difficulty level the user has specified.
       difficultyFormEl.addEventListener("input", function(event) {
-        const rangeVal = event.target.value;
-        const colorArr = calculateProperColorRange(rangeVal);
-
-        difficultyFormBadgeEl.style.background = `rgb(${colorArr[0]}, ${colorArr[1]}, ${colorArr[2]})`;
+        setProperBadgeColor(event.target.value);
       });
+
+      leftArrow.addEventListener("click", function() {
+        difficultyFormEl.value = parseInt(difficultyFormEl.value) - 1;
+        setProperBadgeColor(difficultyFormEl.value);
+      })
+
+      rightArrow.addEventListener("click", function() {
+        difficultyFormEl.value = parseInt(difficultyFormEl.value) + 1;
+        setProperBadgeColor(difficultyFormEl.value);
+      })
     </script>
   </body>
 </html>
