@@ -5,3 +5,7 @@
 .proper-icon-size {
   font-size: 2em;
 }
+
+#left-arrow, #right-arrow {
+  color: #0f51f9
+}
