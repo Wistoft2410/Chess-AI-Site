@@ -1,3 +1,11 @@
+.index-bg {
+  background-color: #589cf4;
+}
+
+.title {
+  font-family: Helvetica;
+}
+
 .difficulty-container {
   border-radius: 2rem;
 }
