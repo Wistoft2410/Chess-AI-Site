@@ -79,7 +79,7 @@
 
       // Here we register an event listener to the range form input tag,
       // to capture the difficulty level the user has specified.
-      difficultyFormEl.addEventListener("mouseup", function(event) {
+      difficultyFormEl.addEventListener("input", function(event) {
         const rangeVal = event.target.value;
         const colorArr = calculateProperColorRange(rangeVal);
 
