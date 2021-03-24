@@ -10,6 +10,10 @@
   border-radius: 2rem;
 }
 
+.card-border {
+  border-radius: 1.6rem;
+}
+
 .proper-icon-size {
   font-size: 2em;
 }
