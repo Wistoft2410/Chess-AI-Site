@@ -21,3 +21,10 @@
 #left-arrow, #right-arrow {
   color: #0f51f9
 }
+
+.canvas {
+  /* The reason why we are adding 16px 2 times to the 800px
+   * is because the bootstrap "col" class adds 16px padding horizontally on each side
+   * */
+  max-width: calc(12px + 800px + 12px);
+}
