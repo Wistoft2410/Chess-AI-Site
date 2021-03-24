@@ -21,6 +21,7 @@ class King extends Piece {
   }
 
   show() {
+    textSize(30);
     text("K", pixelPosition.x, pixelPosition.y);
   }
 }
