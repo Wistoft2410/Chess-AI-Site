@@ -16,14 +16,7 @@ class Board {
     this.whitePieces.push(new Knight(6, 7, true));
     this.whitePieces.push(new Rook(7, 7, true));
 
-    this.whitePieces.push(new Pawn(0, 6, true));
-    this.whitePieces.push(new Pawn(1, 6, true));
-    this.whitePieces.push(new Pawn(2, 6, true));
-    this.whitePieces.push(new Pawn(3, 6, true));
-    this.whitePieces.push(new Pawn(4, 6, true));
-    this.whitePieces.push(new Pawn(5, 6, true));
-    this.whitePieces.push(new Pawn(6, 6, true));
-    this.whitePieces.push(new Pawn(7, 6, true));
+    for (let i = 0; i < 8; i++) this.whitePieces.push(new Pawn(i, 6, true));
 
     // All the black pieces
     this.blackPieces.push(new Rook(0, 0, true));
@@ -35,14 +28,7 @@ class Board {
     this.blackPieces.push(new Knight(6, 0, true));
     this.blackPieces.push(new Rook(7, 0, true));
 
-    this.blackPieces.push(new Pawn(0, 1, true));
-    this.blackPieces.push(new Pawn(1, 1, true));
-    this.blackPieces.push(new Pawn(2, 1, true));
-    this.blackPieces.push(new Pawn(3, 1, true));
-    this.blackPieces.push(new Pawn(4, 1, true));
-    this.blackPieces.push(new Pawn(5, 1, true));
-    this.blackPieces.push(new Pawn(6, 1, true));
-    this.blackPieces.push(new Pawn(7, 1, true));
+    for (let i = 0; i < 8; i++) this.blackPieces.push(new Pawn(i, 1, true));
   }
 
   showGrid() {
