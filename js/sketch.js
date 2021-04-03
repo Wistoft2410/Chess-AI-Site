@@ -6,24 +6,19 @@ const tileSize = 100;
 
 function setup() {
   createCanvas(800, 800);
+  board = new Board();
 }
 
 function draw() {
   background(100);
-  showGrid();
+
+  board.showGrid();
+  board.showPieces();
 }
 
-function showGrid() {
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      if ((i + j) % 2 == 0) {
-        fill(0);
-      } else {
-        fill(255);
-      }
+function mousePressed() {
+  const x = floor(mouseX/tileSize);
+  const y = floor(mouseY/tileSize);
 
-      rect(i*tileSize, j*tileSize, tileSize, tileSize);
-    }
-  }
+  // TODO: be done with this method
 }
-
