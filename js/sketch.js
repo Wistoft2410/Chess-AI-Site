@@ -20,5 +20,8 @@ function mousePressed() {
   const x = floor(mouseX/tileSize);
   const y = floor(mouseY/tileSize);
 
+  if (!moving) {
+  }
+
   // TODO: be done with this method
 }
