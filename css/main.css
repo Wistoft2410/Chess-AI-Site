@@ -33,3 +33,12 @@ canvas {
   /* Looks nicier! */
   border-radius: 1%;
 }
+
+#difficulty-form-badge {
+  width: 100%;
+}
+
+.checked-switch-background {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+}
