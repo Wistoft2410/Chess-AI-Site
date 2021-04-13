@@ -10,7 +10,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
     <!-- Our own custom made css -->
-    <link href="../css/main.css" rel="stylesheet">
+    <link href="../static/css/main.css" rel="stylesheet">
     <title>Game Setup - Chess AI</title>
   </head>
   <body class="index-bg">
@@ -66,12 +66,12 @@
         <div class="row mt-5">
           <div class="col text-center">
             <!--<button type="submit" class="btn btn-primary btn-lg">Begynd Spil</button>-->
-            <a class="btn btn-primary" href="game.html" role="button">Begynd Spil</a>
+            <a class="btn btn-primary" href="{{ url_for('game') }}" role="button">Begynd Spil</a>
           </div>
         </div>
         <div class="row mt-3">
           <div class="col text-center">
-            <a class="btn btn-primary" href="index.html" role="button">Vend Tilbage</a>
+            <a class="btn btn-primary" href="{{ url_for('home') }}" role="button">Vend Tilbage</a>
       </form>
     </div>
 
