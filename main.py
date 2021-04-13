@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+import os
+from flask import Flask, render_template, send_from_directory
 
 app = Flask(__name__)
 
@@ -24,3 +25,7 @@ def game():
     return render_template('game.html')
 
 
+# This function makes sure to return an obligated favicon for the website
+@app.route('/favicon.ico', methods=('GET',))
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, './static/images'), 'favicon.ico', mimetype='image/x-icon')
