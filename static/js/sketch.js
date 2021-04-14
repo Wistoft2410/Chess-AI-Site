@@ -3,6 +3,8 @@
   * */
 
 const tileSize = 100;
+let movingPiece = null;
+let moving = false;
 
 function setup() {
   createCanvas(800, 800);
@@ -20,8 +22,15 @@ function mousePressed() {
   const x = floor(mouseX/tileSize);
   const y = floor(mouseY/tileSize);
 
-  //if (!moving) {
-  //}
+  if (!moving) {
+    if (board.pieceAt(x, y)) {
+      movingPiece = board.getPiece(x, y);
+      movingPiece.moving = true;
+    }
+  } else {
+    movingPiece.move(x, y);
+    movingPiece.moving = false;
+  }
 
-  // TODO: be done with this method
+  moving = !moving;
 }

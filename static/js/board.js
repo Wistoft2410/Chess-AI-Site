@@ -42,6 +42,32 @@ class Board {
 
         rect(i*tileSize, j*tileSize, tileSize, tileSize);
       }
+    } 
+  }
+
+  pieceAt(x, y) {
+    for (let i = 0; i < this.whitePieces.length; i++) {
+      const matrixPosition = this.whitePieces[i].matrixPosition;
+      if (matrixPosition.x === x && matrixPosition.y === y) return true;
+    }
+
+    for (let i = 0; i < this.blackPieces.length; i++) {
+      const matrixPosition = this.blackPieces[i].matrixPosition;
+      if (matrixPosition.x === x && matrixPosition.y === y) return true;
+    }
+
+    return false;
+  }
+
+  getPiece(x, y) {
+    for (let i = 0; i < this.whitePieces.length; i++) {
+      const matrixPosition = this.whitePieces[i].matrixPosition;
+      if (matrixPosition.x === x && matrixPosition.y === y) return this.whitePieces[i];
+    }
+
+    for (let i = 0; i < this.blackPieces.length; i++) {
+      const matrixPosition = this.blackPieces[i].matrixPosition;
+      if (matrixPosition.x === x && matrixPosition.y === y) return this.blackPieces[i];
     }
   }
 

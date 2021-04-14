@@ -3,6 +3,7 @@ class Piece {
     this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(x*tileSize + (tileSize/2), y*tileSize + (tileSize/2));
 
+    this.moving = false;
     this.taken = false;
     this.white = isWhite;
     this.letter = letter;
@@ -20,7 +21,20 @@ class Piece {
     textSize(30);
     textAlign(CENTER, CENTER);
     fill(100);
-    text(this.letter, this.pixelPosition.x, this.pixelPosition.y);
+
+    if (this.moving) {
+      text(this.letter, this.mouseX, this.mouseY);
+    } else {
+      text(this.letter, this.pixelPosition.x, this.pixelPosition.y);
+    }
+  }
+
+  move(x, y) {
+    this.matrixPostion = createVector(x, y);
+    this.pixelPostion = createVector(
+      x * tileSize + tileSize / 2, 
+      y * tileSize + tileSize / 2
+    );
   }
 }
 
