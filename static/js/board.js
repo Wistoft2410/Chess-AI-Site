@@ -40,35 +40,23 @@ class Board {
           fill(0);
         }
 
-        rect(i*tileSize, j*tileSize, tileSize, tileSize);
+        rect(i*TILE_SIZE, j*TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
     } 
   }
 
-  pieceAt(x, y) {
-    for (let i = 0; i < this.whitePieces.length; i++) {
-      const matrixPosition = this.whitePieces[i].matrixPosition;
-      if (matrixPosition.x === x && matrixPosition.y === y) return true;
-    }
-
-    for (let i = 0; i < this.blackPieces.length; i++) {
-      const matrixPosition = this.blackPieces[i].matrixPosition;
-      if (matrixPosition.x === x && matrixPosition.y === y) return true;
-    }
-
-    return false;
-  }
-
   getPiece(x, y) {
-    for (let i = 0; i < this.whitePieces.length; i++) {
-      const matrixPosition = this.whitePieces[i].matrixPosition;
-      if (matrixPosition.x === x && matrixPosition.y === y) return this.whitePieces[i];
+    for (let piece of this.whitePieces) {
+      const matrixPosition = piece.matrixPosition;
+      if (matrixPosition.x === x && matrixPosition.y === y) return piece;
     }
 
-    for (let i = 0; i < this.blackPieces.length; i++) {
-      const matrixPosition = this.blackPieces[i].matrixPosition;
-      if (matrixPosition.x === x && matrixPosition.y === y) return this.blackPieces[i];
+    for (let piece of this.blackPieces) {
+      const matrixPosition = piece.matrixPosition;
+      if (matrixPosition.x === x && matrixPosition.y === y) return piece;
     }
+
+    return null;
   }
 
   showPieces() {

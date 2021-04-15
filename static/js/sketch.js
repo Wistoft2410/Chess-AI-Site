@@ -1,10 +1,10 @@
 /*
  * This is a fantastic video: https://www.youtube.com/watch?v=DZfv0YgLJ2Q
+ * Here is the github code used in the video: https://github.com/Code-Bullet/Chess-AI/blob/gh-pages/Chess/sketch.js
   * */
 
-const tileSize = 100;
+const TILE_SIZE = 100;
 let movingPiece = null;
-let moving = false;
 
 function setup() {
   createCanvas(800, 800);
@@ -18,19 +18,27 @@ function draw() {
   board.showPieces();
 }
 
+// This doesn't currently work, maybe we need to use something like
+// mouseDragged() or something like that
 function mousePressed() {
-  const x = floor(mouseX/tileSize);
-  const y = floor(mouseY/tileSize);
+  const x = floor(mouseX / TILE_SIZE);
+  const y = floor(mouseY / TILE_SIZE);
 
-  if (!moving) {
-    if (board.pieceAt(x, y)) {
-      movingPiece = board.getPiece(x, y);
-      movingPiece.moving = true;
-    }
-  } else {
+  movingPiece = board.getPiece(x, y);
+
+  if (movingPiece) movingPiece.moving = true;
+}
+
+// This doesn't currently work, maybe we need to use something like
+// mouseDragged() or something like that
+function mouseReleased() {
+  const x = floor(mouseX / TILE_SIZE);
+  const y = floor(mouseY / TILE_SIZE);
+
+  movingPiece = board.getPiece();
+
+  if (movingPiece) {
     movingPiece.move(x, y);
     movingPiece.moving = false;
   }
-
-  moving = !moving;
 }

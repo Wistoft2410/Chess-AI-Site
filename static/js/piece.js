@@ -1,7 +1,7 @@
 class Piece {
   constructor(x, y, isWhite, letter) {
     this.matrixPosition = createVector(x, y);
-    this.pixelPosition = createVector(x*tileSize + (tileSize/2), y*tileSize + (tileSize/2));
+    this.pixelPosition = createVector(x * TILE_SIZE + (TILE_SIZE / 2), y * TILE_SIZE + (TILE_SIZE / 2));
 
     this.moving = false;
     this.taken = false;
@@ -10,31 +10,28 @@ class Piece {
   }
 
   show() {
-    // This is for later
+    // This is for differentiating between the white and black pieces
     if (this.isWhite) {
+      // Not sure how to do this, probably jsut wait till we have images instead of text
       //fill(255);
     } else {
+      // Not sure how to do this, probably jsut wait till we have images instead of text
       //fill(0);
     }
 
-    // This is just temporary
+    // --- THIS IS JUST TEMPORARY ---
     textSize(30);
     textAlign(CENTER, CENTER);
     fill(100);
 
-    if (this.moving) {
-      text(this.letter, this.mouseX, this.mouseY);
-    } else {
-      text(this.letter, this.pixelPosition.x, this.pixelPosition.y);
-    }
+    // Move with the mouse pointer
+    if (this.moving) text(this.letter, this.mouseX, this.mouseY); 
+    else text(this.letter, this.pixelPosition.x, this.pixelPosition.y);
   }
 
   move(x, y) {
-    this.matrixPostion = createVector(x, y);
-    this.pixelPostion = createVector(
-      x * tileSize + tileSize / 2, 
-      y * tileSize + tileSize / 2
-    );
+    this.matrixPosition = createVector(x, y);
+    this.pixelPosition = createVector(x * TILE_SIZE + (TILE_SIZE / 2), y * TILE_SIZE + (TILE_SIZE / 2));
   }
 }
 
