@@ -25,7 +25,7 @@ class Piece {
     fill(100);
 
     // Move with the mouse pointer
-    if (this.moving) text(this.letter, this.mouseX, this.mouseY); 
+    if (this.moving) text(this.letter, mouseX, mouseY);
     else text(this.letter, this.pixelPosition.x, this.pixelPosition.y);
   }
 

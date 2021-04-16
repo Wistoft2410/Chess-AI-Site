@@ -2,6 +2,7 @@ class Board {
   constructor() {
     this.whitePieces = [];
     this.blackPieces = [];
+
     this.setupPieces();
   }
 
