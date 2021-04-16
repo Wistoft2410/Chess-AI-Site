@@ -25,7 +25,7 @@ def game():
     return render_template('game.html')
 
 
-# This function makes sure to return an obligated favicon for the website
+# This function makes sure to return a mandatory favicon for the website
 @app.route('/favicon.ico', methods=('GET',))
 def favicon():
     return send_from_directory(os.path.join(app.root_path, './static/images'), 'favicon.ico', mimetype='image/x-icon')

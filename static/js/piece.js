@@ -1,7 +1,7 @@
 class Piece {
   constructor(x, y, isWhite, letter) {
-    this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(x * TILE_SIZE + (TILE_SIZE / 2), y * TILE_SIZE + (TILE_SIZE / 2));
+    this.matrixPosition = createVector(x, y);
 
     this.moving = false;
     this.taken = false;
@@ -30,8 +30,21 @@ class Piece {
   }
 
   move(x, y) {
-    this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(x * TILE_SIZE + (TILE_SIZE / 2), y * TILE_SIZE + (TILE_SIZE / 2));
+    this.matrixPosition = createVector(x, y);
+  }
+
+  canMove(x, y) {
+    // Don't move outside the board
+    if (x >= 0 && y >= 0 && x <= 7 && y <= 7) {
+      const piece = board.getPiece(x, y);
+
+      // Don't move to a place where there is an ally
+      // This might be a problem with "Rokade" ability
+      if (piece) return piece.white !== this.white;
+      // It's okay to move to a place where there is no pieces
+      else return true;
+    }
   }
 }
 
@@ -39,6 +52,12 @@ class Piece {
 class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "K");
+  }
+
+  canMove(x, y) {
+    if (super.canMove(x, y)) {
+      return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
+    }
   }
 }
 

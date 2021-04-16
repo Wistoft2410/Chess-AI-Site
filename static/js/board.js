@@ -41,7 +41,7 @@ class Board {
           fill(0);
         }
 
-        rect(i*TILE_SIZE, j*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
     } 
   }
