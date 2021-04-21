@@ -65,6 +65,19 @@ class Queen extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "Q");
   }
+
+  canMove(x, y) {
+    if (super.canMove(x, y)) {
+      // Straight
+      if (x === this.matrixPosition.x || y === this.matrixPosition.y) {
+        return true;
+
+      // Diagonal
+      } else if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y)) {
+        return true;
+      }
+    }
+  }
 }
 
 class Bishop extends Piece {

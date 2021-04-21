@@ -23,12 +23,16 @@ function draw() {
 }
 
 
-function mousePressed() {
-  const x = floor(mouseX / TILE_SIZE);
-  const y = floor(mouseY / TILE_SIZE);
+function mousePressed(event) {
+  // There is apparently some bug with right click.
+  // It doens't make sence to respond to right click either
+  if (mouseButton === LEFT) {
+    const x = floor(mouseX / TILE_SIZE);
+    const y = floor(mouseY / TILE_SIZE);
 
-  movingPiece = board.getPiece(x, y);
-  if (movingPiece) movingPiece.moving = true;
+    movingPiece = board.getPiece(x, y);
+    if (movingPiece) movingPiece.moving = true;
+  }
 }
 
 function mouseReleased() {
