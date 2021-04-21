@@ -2,17 +2,16 @@
 {% block title %}Game Setup{% endblock %}
 
 {% block content %}
-  <div class="row my-5">
-    <div class="col">
-      <h1 class="text-center text-white">Game setup</h1>
-    </div>
-  </div>
-  <form action="#" method="POST">
-    <div class="row justify-content-center">
-      <div class="col-8">   
-        <div class="card difficulty-container shadow-lg px-3">
-          <div class="card-body pb-5">
-            <h4 class="card-title text-center mb-3">Set difficulty</h4>
+<div class="row my-5">
+<form action="#" method="POST">
+  <div class="row justify-content-center">
+    <div class="col-8">
+      <div class="card difficulty-container shadow-lg px-3">
+        <div class="card-body pb-5">
+          <h4 class="card-title text-center">Settings - Set AI difficulty</h4>
+          <div class="card-body">
+            <p class="card-description text-center">Center aligned text on all viewport sizes.</p>
+            <br>
             <div class="row">
               <div class="col">
                 <span class="badge rounded-pill p-4" id="difficulty-form-badge">
@@ -30,11 +29,13 @@
                 </span>
               </div>
             </div>
-            <div class="row mt-3 mb-1">
+            <br>
+            <hr>
+            <div class="row mt-5 mb-1">
               <div class="col">
                 <div class="form-check form-switch text-center">
                   <label class="form-check-label mb-1" for="black-or-white-switch">
-                    <b>Her skal du vælge om du vil være sort eller hvid</b>
+                    <b>Choose between playing as black or white by clicking this switch</b>
                   </label>
                 </div>
               </div>
@@ -42,71 +43,81 @@
             <div class="row justify-content-center">
               <div class="col-1">
                 <div class="form-check form-switch">
+                  <br>
                   <input class="form-check-input" type="checkbox" id="black-or-white-switch">
                 </div>
               </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+          </div>
+          <div class="row mt-3">
+            <div class="col text-center">
+              <a class="px-4 fs-2 text-decoration-none badge rounded-pill bg-primary text-uppercase text-white"
+                href="{{ url_for('game') }}" role="button">Start Game</a>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col text-center">
+              <a class="px-3 fs-5 text-decoration-none badge rounded-pill bg-danger text-uppercase text-white"
+                href="{{ url_for('home') }}" role="button">Back to Menu</a>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="row mt-5">
-      <div class="col text-center">
-        <a class="btn btn-primary" href="{{ url_for('game') }}" role="button">Begynd Spil</a>
-      </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col text-center">
-        <a class="btn btn-primary" href="{{ url_for('home') }}" role="button">Vend Tilbage</a>
-      </div>
-    </div>
-  </form>
+
+</form>
+
+
 {% endblock %}
 
 {% block scripts %}
-  <script>
-    // Setup and retrieve the proper html elements
-    const difficultyFormEl = document.getElementById("difficulty");
-    const difficultyFormBadgeEl = document.getElementById("difficulty-form-badge");
+<script>
+  // Setup and retrieve the proper html elements
+  const difficultyFormEl = document.getElementById("difficulty");
+  const difficultyFormBadgeEl = document.getElementById("difficulty-form-badge");
 
-    const leftArrow = document.getElementById("left-arrow");
-    const rightArrow = document.getElementById("right-arrow");
+  const leftArrow = document.getElementById("left-arrow");
+  const rightArrow = document.getElementById("right-arrow");
 
-    const switchToggle = document.getElementById("black-or-white-switch");
+  const switchToggle = document.getElementById("black-or-white-switch");
 
-    const upperLimit = 6;
+  const upperLimit = 6;
 
 
-    const setProperBadgeColor = function(rangeVal) {
-      const Red = 255 * (rangeVal / upperLimit);
-      const Green = 255 - (255 * (rangeVal / upperLimit));
-      const Blue = 0;
+  const setProperBadgeColor = function (rangeVal) {
+    const Red = 255 * (rangeVal / upperLimit);
+    const Green = 255 - (255 * (rangeVal / upperLimit));
+    const Blue = 0;
 
-      difficultyFormBadgeEl.style.background = `rgb(${Red}, ${Green}, ${Blue})`;
-    }
+    difficultyFormBadgeEl.style.background = `rgb(${Red}, ${Green}, ${Blue})`;
+  }
 
-    // Setup the colors the first time!
-    setProperBadgeColor(0);
+  // Setup the colors the first time!
+  setProperBadgeColor(0);
 
-    // Here we register an event listener to the range form input tag,
-    // to capture the difficulty level the user has specified.
-    difficultyFormEl.addEventListener("input", function(event) {
-      setProperBadgeColor(event.target.value);
-    });
+  // Here we register an event listener to the range form input tag,
+  // to capture the difficulty level the user has specified.
+  difficultyFormEl.addEventListener("input", function (event) {
+    setProperBadgeColor(event.target.value);
+  });
 
-    leftArrow.addEventListener("click", function() {
-      difficultyFormEl.value = parseInt(difficultyFormEl.value) - 1;
-      setProperBadgeColor(difficultyFormEl.value);
-    });
+  leftArrow.addEventListener("click", function () {
+    difficultyFormEl.value = parseInt(difficultyFormEl.value) - 1;
+    setProperBadgeColor(difficultyFormEl.value);
+  });
 
-    rightArrow.addEventListener("click", function() {
-      difficultyFormEl.value = parseInt(difficultyFormEl.value) + 1;
-      setProperBadgeColor(difficultyFormEl.value);
-    });
+  rightArrow.addEventListener("click", function () {
+    difficultyFormEl.value = parseInt(difficultyFormEl.value) + 1;
+    setProperBadgeColor(difficultyFormEl.value);
+  });
 
-    switchToggle.addEventListener("change", function() {
-      if (this.checked) switchToggle.classList.add("checked-switch-background");
-      else switchToggle.classList.remove("checked-switch-background");
-    });
-  </script>
+  switchToggle.addEventListener("change", function () {
+    if (this.checked) switchToggle.classList.add("checked-switch-background");
+    else switchToggle.classList.remove("checked-switch-background");
+  });
+</script>
 {% endblock %}
