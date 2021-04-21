@@ -123,6 +123,15 @@ class Knight extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "Kn");
   }
+
+  canMove(x, y) {
+    if (super.canMove(x, y)) {
+      const horizontalMovement = abs(x - this.matrixPosition.x) === 2 && abs(y - this.matrixPosition.y) === 1;
+      const verticalMovement = abs(x - this.matrixPosition.x) === 1 && abs(y - this.matrixPosition.y) === 2;
+
+      if (horizontalMovement || verticalMovement) return true;
+    }
+  }
 }
 
 class Rook extends Piece {
@@ -145,5 +154,15 @@ class Rook extends Piece {
 class Pawn extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "P");
+  }
+
+  canMove(x, y) {
+    if (super.canMove(x, y)) {
+      const isMovingThroughPieces = this.moveThroughPieces(x, y);
+
+      if () {
+      }
+
+    }
   }
 }
