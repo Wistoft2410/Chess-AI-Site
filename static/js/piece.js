@@ -88,9 +88,9 @@ class Queen extends Piece {
 
   canMove(x, y) {
     if (super.canMove(x, y)) {
-      // Straight
       const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
+      // Straight
       if ((x === this.matrixPosition.x || y === this.matrixPosition.y) && !isMovingThroughPieces) {
         return true;
 
@@ -106,6 +106,17 @@ class Bishop extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "B");
   }
+
+  canMove(x, y) {
+    if (super.canMove(x, y)) {
+      const isMovingThroughPieces = this.moveThroughPieces(x, y);
+
+      // Diagonal
+      if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y) && !isMovingThroughPieces) {
+        return true;
+      }
+    }
+  }
 }
 
 class Knight extends Piece {
@@ -117,6 +128,17 @@ class Knight extends Piece {
 class Rook extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "R");
+  }
+
+  canMove(x, y) {
+    if (super.canMove(x, y)) {
+      const isMovingThroughPieces = this.moveThroughPieces(x, y);
+
+      // Straight
+      if ((x === this.matrixPosition.x || y === this.matrixPosition.y) && !isMovingThroughPieces) {
+        return true;
+      }
+    }
   }
 }
 
