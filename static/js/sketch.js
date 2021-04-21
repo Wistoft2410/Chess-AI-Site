@@ -3,8 +3,6 @@
  * Here is the github code used in the video: https://github.com/Code-Bullet/Chess-AI
   * */
 
-const TILE_SIZE = 100;
-
 let movingPiece;
 let board;
 
@@ -27,8 +25,8 @@ function mousePressed(event) {
   // There is apparently some bug with right click.
   // It doens't make sence to respond to right click either
   if (mouseButton === LEFT) {
-    const x = floor(mouseX / TILE_SIZE);
-    const y = floor(mouseY / TILE_SIZE);
+    const x = floor(mouseX / Board.TILE_SIZE);
+    const y = floor(mouseY / Board.TILE_SIZE);
 
     movingPiece = board.getPiece(x, y);
     if (movingPiece) movingPiece.moving = true;
@@ -37,8 +35,8 @@ function mousePressed(event) {
 
 function mouseReleased() {
   if (movingPiece) {
-    const x = floor(mouseX / TILE_SIZE);
-    const y = floor(mouseY / TILE_SIZE);
+    const x = floor(mouseX / Board.TILE_SIZE);
+    const y = floor(mouseY / Board.TILE_SIZE);
 
     if (movingPiece.canMove(x, y)) movingPiece.move(x, y);
 

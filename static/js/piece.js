@@ -1,36 +1,39 @@
 class Piece {
-  constructor(x, y, isWhite, letter) {
-    this.pixelPosition = createVector(x * TILE_SIZE + (TILE_SIZE / 2), y * TILE_SIZE + (TILE_SIZE / 2));
+  constructor(x, y, isWhite, image) {
+    this.pixelPosition = createVector(
+      x * Board.TILE_SIZE + (Board.TILE_SIZE / 2),
+      y * Board.TILE_SIZE + (Board.TILE_SIZE / 2)
+    );
+
     this.matrixPosition = createVector(x, y);
 
     this.moving = false;
     this.taken = false;
     this.white = isWhite;
-    this.letter = letter;
+    this.image = loadImage(image);
+  }
+
+  static generatePieceImgPath(isWhite, fileNameExludingFirstChar) {
+    const pieceImgPath = "static/images/pieces/";
+
+    return `${pieceImgPath}${isWhite ? 'w' : 'b'}${fileNameExludingFirstChar}`;
   }
 
   show() {
-    // This is for differentiating between the white and black pieces
-    if (this.isWhite) {
-      // Not sure how to do this, probably jsut wait till we have images instead of text
-      //fill(255);
-    } else {
-      // Not sure how to do this, probably jsut wait till we have images instead of text
-      //fill(0);
-    }
-
-    // --- THIS IS JUST TEMPORARY ---
-    textSize(30);
-    textAlign(CENTER, CENTER);
-    fill(100);
+    imageMode(CENTER);
 
     // Move with the mouse pointer
-    if (this.moving) text(this.letter, mouseX, mouseY);
-    else text(this.letter, this.pixelPosition.x, this.pixelPosition.y);
+    if (this.moving) image(this.image, mouseX, mouseY, Board.TILE_SIZE * 1.2, Board.TILE_SIZE * 1.2);
+    else {
+      image(this.image, this.pixelPosition.x, this.pixelPosition.y, Board.TILE_SIZE - 10, Board.TILE_SIZE - 10);
+    }
   }
 
   move(x, y) {
-    this.pixelPosition = createVector(x * TILE_SIZE + (TILE_SIZE / 2), y * TILE_SIZE + (TILE_SIZE / 2));
+    this.pixelPosition = createVector(
+      x * Board.TILE_SIZE + (Board.TILE_SIZE / 2),
+      y * Board.TILE_SIZE + (Board.TILE_SIZE / 2)
+    );
     this.matrixPosition = createVector(x, y);
   }
 
@@ -71,7 +74,7 @@ class Piece {
 
 class King extends Piece {
   constructor(x, y, isWhite) {
-    super(x, y, isWhite, "K");
+    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
   }
 
   canMove(x, y) {
@@ -83,7 +86,7 @@ class King extends Piece {
 
 class Queen extends Piece {
   constructor(x, y, isWhite) {
-    super(x, y, isWhite, "Q");
+    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'queen.png'));
   }
 
   canMove(x, y) {
@@ -104,7 +107,7 @@ class Queen extends Piece {
 
 class Bishop extends Piece {
   constructor(x, y, isWhite) {
-    super(x, y, isWhite, "B");
+    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'bishop.png'));
   }
 
   canMove(x, y) {
@@ -121,7 +124,7 @@ class Bishop extends Piece {
 
 class Knight extends Piece {
   constructor(x, y, isWhite) {
-    super(x, y, isWhite, "Kn");
+    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'knight.png'));
   }
 
   canMove(x, y) {
@@ -136,7 +139,7 @@ class Knight extends Piece {
 
 class Rook extends Piece {
   constructor(x, y, isWhite) {
-    super(x, y, isWhite, "R");
+    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'rook.png'));
   }
 
   canMove(x, y) {
@@ -153,7 +156,7 @@ class Rook extends Piece {
 
 class Pawn extends Piece {
   constructor(x, y, isWhite) {
-    super(x, y, isWhite, "P");
+    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
     this.firstTurn = true;
   }
 

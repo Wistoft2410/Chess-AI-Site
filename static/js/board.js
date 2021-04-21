@@ -6,6 +6,10 @@ class Board {
     this.setupPieces();
   }
 
+  static TILE_SIZE = 100;
+  static blackTileColor = [22, 98, 214];
+  static whiteTileColor = [245, 245, 220];
+
   setupPieces() {
     // All the white pieces
     this.whitePieces.push(new Rook(0, 7, true));
@@ -36,12 +40,12 @@ class Board {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         if ((i + j) % 2 == 0) {
-          fill(255);
+          fill(Board.whiteTileColor[0], Board.whiteTileColor[1], Board.whiteTileColor[2]);
         } else {
-          fill(0);
+          fill(Board.blackTileColor[0], Board.blackTileColor[1], Board.blackTileColor[2]);
         }
 
-        rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        rect(i * Board.TILE_SIZE, j * Board.TILE_SIZE, Board.TILE_SIZE, Board.TILE_SIZE);
       }
     } 
   }
