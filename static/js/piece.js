@@ -154,15 +154,43 @@ class Rook extends Piece {
 class Pawn extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, "P");
+    this.firstTurn = true;
   }
 
   canMove(x, y) {
+    // TODO: Make "passant" functionality!
     if (super.canMove(x, y)) {
-      const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
-      if () {
+      const stepDirectionX = x - this.matrixPosition.x;
+      const stepDirectionY = y - this.matrixPosition.y;
+
+      const isWhiteAndMoveUp = this.white && stepDirectionY === -1;
+      const isBlackAndMoveDown = !this.white && stepDirectionY === 1;
+
+      // This is if the pawn is attacking a piece
+      if (board.getPiece(x, y)) {
+        const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
+        
+        if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) {
+          this.firstTurn = false;
+          return true;
+        }
+        // As long as the pawn hasn't moved horizontally we are good to go
+      } else if (stepDirectionX === 0) {
+        const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
+        const isBlackAndMove2Down = !this.white && stepDirectionY === 2;
+        const isMovingThroughPieces = this.moveThroughPieces(x, y);
+
+        // Move one field up
+        if (isWhiteAndMoveUp || isBlackAndMoveDown) {
+          this.firstTurn = false;
+          return true;
+        // Move two fields up only if it's the pieces first turn
+        } else if (this.firstTurn && !isMovingThroughPieces && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
+          this.firstTurn = false;
+          return true;
+        }
       }
-
     }
   }
 }

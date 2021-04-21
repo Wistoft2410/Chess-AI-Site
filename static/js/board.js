@@ -20,16 +20,16 @@ class Board {
     for (let i = 0; i < 8; i++) this.whitePieces.push(new Pawn(i, 6, true));
 
     // All the black pieces
-    this.blackPieces.push(new Rook(0, 0, true));
-    this.blackPieces.push(new Knight(1, 0, true));
-    this.blackPieces.push(new Bishop(2, 0, true));
-    this.blackPieces.push(new Queen(3, 0, true));
-    this.blackPieces.push(new King(4, 0, true));
-    this.blackPieces.push(new Bishop(5, 0, true));
-    this.blackPieces.push(new Knight(6, 0, true));
-    this.blackPieces.push(new Rook(7, 0, true));
+    this.blackPieces.push(new Rook(0, 0, false));
+    this.blackPieces.push(new Knight(1, 0, false));
+    this.blackPieces.push(new Bishop(2, 0, false));
+    this.blackPieces.push(new Queen(3, 0, false));
+    this.blackPieces.push(new King(4, 0, false));
+    this.blackPieces.push(new Bishop(5, 0, false));
+    this.blackPieces.push(new Knight(6, 0, false));
+    this.blackPieces.push(new Rook(7, 0, false));
 
-    for (let i = 0; i < 8; i++) this.blackPieces.push(new Pawn(i, 1, true));
+    for (let i = 0; i < 8; i++) this.blackPieces.push(new Pawn(i, 1, false));
   }
 
   showGrid() {
