@@ -34,6 +34,26 @@ class Piece {
     this.matrixPosition = createVector(x, y);
   }
 
+  moveThroughPieces(x, y) {
+    const stepDirectionX = x - this.matrixPosition.x > 0 ? 1 : x === this.matrixPosition.x ? 0 : -1;
+    const stepDirectionY = y - this.matrixPosition.y > 0 ? 1 : y === this.matrixPosition.y ? 0 : -1;
+
+    // If the piece gets placed in the same position as what it started out as,
+    // then count that as moving through a piece, and that actually make sense I would say
+    if (stepDirectionX === 0 && stepDirectionY === 0) return true;
+
+    const tempPos = createVector(this.matrixPosition.x, this.matrixPosition.y);
+    tempPos.x += stepDirectionX;
+    tempPos.y += stepDirectionY;
+
+    while(tempPos.x !== x || tempPos.y !== y) {
+      if (board.getPiece(tempPos.x, tempPos.y)) return true;
+
+      tempPos.x += stepDirectionX;
+      tempPos.y += stepDirectionY;
+    }
+  }
+
   canMove(x, y) {
     // Don't move outside the board
     if (x >= 0 && y >= 0 && x <= 7 && y <= 7) {
@@ -69,11 +89,13 @@ class Queen extends Piece {
   canMove(x, y) {
     if (super.canMove(x, y)) {
       // Straight
-      if (x === this.matrixPosition.x || y === this.matrixPosition.y) {
+      const isMovingThroughPieces = this.moveThroughPieces(x, y);
+
+      if ((x === this.matrixPosition.x || y === this.matrixPosition.y) && !isMovingThroughPieces) {
         return true;
 
       // Diagonal
-      } else if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y)) {
+      } else if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y) && !isMovingThroughPieces) {
         return true;
       }
     }
