@@ -1,14 +1,13 @@
 class Piece {
   constructor(x, y, isWhite, image) {
+    this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(
       x * Board.TILE_SIZE + (Board.TILE_SIZE / 2),
       y * Board.TILE_SIZE + (Board.TILE_SIZE / 2)
     );
 
-    this.matrixPosition = createVector(x, y);
-
+    this.captured = false;
     this.moving = false;
-    this.taken = false;
     this.white = isWhite;
     this.image = loadImage(image);
   }
@@ -30,11 +29,15 @@ class Piece {
   }
 
   move(x, y) {
+    // If there is a piece at the location, then capture it!
+    const piece = board.getPiece(x, y);
+    if (piece) piece.captured = true;
+
+    this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(
       x * Board.TILE_SIZE + (Board.TILE_SIZE / 2),
       y * Board.TILE_SIZE + (Board.TILE_SIZE / 2)
     );
-    this.matrixPosition = createVector(x, y);
   }
 
   moveThroughPieces(x, y) {
@@ -157,6 +160,7 @@ class Rook extends Piece {
 class Pawn extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
+    this.promoted = false;
     this.firstTurn = true;
   }
 
@@ -174,10 +178,7 @@ class Pawn extends Piece {
       if (board.getPiece(x, y)) {
         const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
         
-        if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) {
-          this.firstTurn = false;
-          return true;
-        }
+        if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) return true;
         // As long as the pawn hasn't moved horizontally we are good to go
       } else if (stepDirectionX === 0) {
         const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
@@ -186,14 +187,20 @@ class Pawn extends Piece {
 
         // Move one field up
         if (isWhiteAndMoveUp || isBlackAndMoveDown) {
-          this.firstTurn = false;
           return true;
         // Move two fields up only if it's the pieces first turn
         } else if (this.firstTurn && !isMovingThroughPieces && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
-          this.firstTurn = false;
           return true;
         }
       }
     }
+  }
+
+  move(x, y) {
+    super.move(x, y);
+    this.firstTurn = false;
+
+    // If the pawn is at the opposite side of the board then promote it
+    if (this.white && y === 0 || !this.white && y === 7) this.promoted = true;
   }
 }

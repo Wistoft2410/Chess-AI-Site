@@ -11,6 +11,10 @@ class Board {
   static whiteTileColor = [245, 245, 220];
 
   setupPieces() {
+    // TODO: Actually I'm not sure if there is any point in keeping
+    // the pieces seperated in two arrays, why not have every piece in on big array?
+    // That would actually result in less code, which is more maintainable!
+
     // All the white pieces
     this.whitePieces.push(new Rook(0, 7, true));
     this.whitePieces.push(new Knight(1, 7, true));
@@ -36,6 +40,40 @@ class Board {
     for (let i = 0; i < 8; i++) this.blackPieces.push(new Pawn(i, 1, false));
   }
 
+  run() {
+    // Functionality
+    this.promotePawn();
+    this.removeCapturedPiece();
+
+    // Display
+    this.showGrid();
+    this.showPieces();
+  }
+
+  removeCapturedPiece() {
+    // TODO: Instead of doing this for both the whitePieces and the blackPieces
+    // we could have some boolean value indicating which player
+    // just made a move or something like that. I don't know if it's possible though!
+    this.whitePieces = this.whitePieces.filter(piece => !piece.captured);
+    this.blackPieces = this.blackPieces.filter(piece => !piece.captured);
+  }
+
+  promotePawn() {
+    // TODO: Instead of doing this for both the whitePieces and the blackPieces
+    // we could have some boolean value indicating which player
+    // just made a move or something like that. I don't know if it's possible though!
+    const whitePawn = this.whitePieces.find(piece => piece.promoted);
+    const blackPawn = this.blackPieces.find(piece => piece.promoted);
+
+    if (whitePawn) {
+      this.whitePieces.push(new Queen(whitePawn.matrixPosition.x, 0, true));
+      this.whitePieces = this.whitePieces.filter(piece => !piece.promoted);
+    } else if (blackPawn) {
+      this.blackPieces.push(new Queen(blackPawn.matrixPosition.x, 7, false));
+      this.blackPieces = this.blackPieces.filter(piece => !piece.promoted);
+    }
+  }
+
   showGrid() {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
@@ -50,6 +88,11 @@ class Board {
     } 
   }
 
+  showPieces() {
+    for (let i = 0; i < this.whitePieces.length; i++) this.whitePieces[i].show();
+    for (let i = 0; i < this.blackPieces.length; i++) this.blackPieces[i].show();
+  }
+
   getPiece(x, y) {
     for (let piece of this.whitePieces) {
       const matrixPosition = piece.matrixPosition;
@@ -62,12 +105,5 @@ class Board {
     }
 
     return null;
-  }
-
-  showPieces() {
-    for (let i = 0; i < this.whitePieces.length; i++) {
-      this.whitePieces[i].show();
-      this.blackPieces[i].show();
-    }
   }
 }

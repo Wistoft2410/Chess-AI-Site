@@ -15,15 +15,13 @@ function setup() {
 
 function draw() {
   background(100);
-
-  board.showGrid();
-  board.showPieces();
+  board.run();
 }
-
 
 function mousePressed(event) {
   // There is apparently some bug with right click.
-  // It doens't make sence to respond to right click either
+  // It doens't make sence to respond to right click either,
+  // So we are only responding to left click!
   if (mouseButton === LEFT) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
