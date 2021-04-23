@@ -5,7 +5,11 @@
 <div class="row my-5">
 <form action="#" method="POST">
   <div class="row justify-content-center">
-    <div class="col-8">
+    <div class="col-7">
+      <div class="row text-center">
+        <titel class="title fs-1 fst-italic text-danger d-inline">Chess<span class="title fst-italic text-primary d-inline">Cog</span><span class="title fst-italic text-white d-inline">Increaser</span></titel>
+      </div>
+      <br>
       <div class="card difficulty-container shadow-lg px-3">
         <div class="card-body pb-5">
           <h4 class="card-title text-center">Settings - Set AI difficulty</h4>
@@ -34,11 +38,11 @@
             <div class="row mt-5 mb-1">
               <div class="col">
                 <div class="form-check form-switch text-center">
-                  <label class="form-check-label mb-1" for="black-or-white-switch">
+                  <p class="mb-1">
                     <b>Choose between playing as black or white by clicking this switch</b>
                     <br>
                     <b>If you don't understand this part please read this <a href="https://www.chess.com/learn-how-to-play-chess">start rules</a><div id="set-up-chess-board"></div></b>
-                  </label>
+                  </p>
                 </div>
               </div>
             </div>
@@ -52,7 +56,6 @@
             </div>
             <br>
             <hr>
-            <br>
           </div>
           <div class="row mt-3">
             <div class="col text-center">
@@ -60,7 +63,6 @@
                 href="{{ url_for('game') }}" role="button">Start Game</a>
             </div>
           </div>
-
           <div class="row mt-3">
             <div class="col text-center">
               <a class="px-3 fs-5 text-decoration-none badge rounded-pill bg-danger text-uppercase text-white"
