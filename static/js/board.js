@@ -59,12 +59,15 @@ class Board {
   }
 
   removePassantVulnerability() {
-    const pawn = this.pieces.find(piece => piece.passantVulnerability);
+    const pawn = this.findPassantVulnerablePawn();
     // If the pawn's color match the color of the current player's turn
     // then that means that the second player didn't make a passant attack
     // when the pawn was vulnerable to it. So we remove it's vulnerability
-    // TODO: This needs fixing!!
     if (pawn && pawn.white === whitesMove) pawn.passantVulnerability = false;
+  }
+
+  findPassantVulnerablePawn() {
+    return this.pieces.find(piece => piece.passantVulnerability);
   }
 
   showGrid() {

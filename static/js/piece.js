@@ -178,12 +178,17 @@ class Pawn extends Piece {
       if (board.getPiece(x, y)) {
         return moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown);
 
-      // This is if the pawn makes a passant
-      } else if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown) && board.getPiece(x, y - 1) || board.getPiece(x, y + 1)) {
-
-        // TODO: Almost there with passant!!!
-        
-
+      // This is if the pawn makes a passant attack
+      // TODO: This code needs to be cleaned up!
+      } else if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) {
+        const pawn = board.findPassantVulnerablePawn();
+        if (pawn && x === pawn.matrixPosition.x) {
+          if (y - pawn.matrixPosition.y === (this.white ? -1 : 1)) {
+            // TODO: This line should't actually be here, but it works for now!
+            pawn.captured = true;
+            return true;
+          }
+        }
       // As long as the pawn hasn't moved horizontally we are good to go
       } else if (stepDirectionX === 0) {
         const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
@@ -195,8 +200,8 @@ class Pawn extends Piece {
           return true;
         // Move two fields up only if it's the pieces first turn
         } else if (this.firstTurn && !isMovingThroughPieces && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
-          // Make the piece vulnerable to a passant attack
-          // TODO: is this the right place to set the passantVulnerability boolean variable?
+          // Make the piece vulnerable to a passant attack, not sure if this is the right place
+          // to have the line though, but I don't know any other places to put the line
           this.passantVulnerability = true;
           return true;
         }
