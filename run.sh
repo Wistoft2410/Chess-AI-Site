@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./env/bin/activate
+. ./env/bin/activate
 flask run
 deactivate
 echo
