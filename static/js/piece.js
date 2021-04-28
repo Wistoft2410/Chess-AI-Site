@@ -61,10 +61,8 @@ class Piece {
   }
 
   canMove(x, y) {
-    // Don't move outside the board
-    if (x >= 0 && y >= 0 && x <= 7 && y <= 7) {
+    if (this.white === whitesMove && x >= 0 && y >= 0 && x <= 7 && y <= 7) {
       const piece = board.getPiece(x, y);
-
       // Don't move to a place where there is an ally
       // This might be a problem with "Rokade" ability
       if (piece) return piece.white !== this.white;
@@ -162,10 +160,10 @@ class Pawn extends Piece {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
     this.promoted = false;
     this.firstTurn = true;
+    this.passantVulnerability = false;
   }
 
   canMove(x, y) {
-    // TODO: Make "passant" functionality!
     if (super.canMove(x, y)) {
 
       const stepDirectionX = x - this.matrixPosition.x;
@@ -174,12 +172,19 @@ class Pawn extends Piece {
       const isWhiteAndMoveUp = this.white && stepDirectionY === -1;
       const isBlackAndMoveDown = !this.white && stepDirectionY === 1;
 
+      const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
+
       // This is if the pawn is attacking a piece
       if (board.getPiece(x, y)) {
-        const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
+        return moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown);
+
+      // This is if the pawn makes a passant
+      } else if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown) && board.getPiece(x, y - 1) || board.getPiece(x, y + 1)) {
+
+        // TODO: Almost there with passant!!!
         
-        if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) return true;
-        // As long as the pawn hasn't moved horizontally we are good to go
+
+      // As long as the pawn hasn't moved horizontally we are good to go
       } else if (stepDirectionX === 0) {
         const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
         const isBlackAndMove2Down = !this.white && stepDirectionY === 2;
@@ -190,6 +195,9 @@ class Pawn extends Piece {
           return true;
         // Move two fields up only if it's the pieces first turn
         } else if (this.firstTurn && !isMovingThroughPieces && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
+          // Make the piece vulnerable to a passant attack
+          // TODO: is this the right place to set the passantVulnerability boolean variable?
+          this.passantVulnerability = true;
           return true;
         }
       }
@@ -198,7 +206,7 @@ class Pawn extends Piece {
 
   move(x, y) {
     super.move(x, y);
-    this.firstTurn = false;
+    if (this.firstTurn) this.firstTurn = false;
 
     // If the pawn is at the opposite side of the board then promote it
     if (this.white && y === 0 || !this.white && y === 7) this.promoted = true;

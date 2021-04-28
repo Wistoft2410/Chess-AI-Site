@@ -4,13 +4,15 @@
   * */
 
 let movingPiece;
+let whitesMove;
 let board;
 
 
 function setup() {
   createCanvas(800, 800);
-  board = new Board();
   movingPiece = null;
+  whitesMove = true;
+  board = new Board();
 }
 
 function draw() {
@@ -36,7 +38,12 @@ function mouseReleased() {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
-    if (movingPiece.canMove(x, y)) movingPiece.move(x, y);
+    if (movingPiece.canMove(x, y)) {
+      movingPiece.move(x, y);
+
+      // Switch turn to the next player
+      whitesMove = !whitesMove;
+    }
 
     movingPiece.moving = false;
   }
