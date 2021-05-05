@@ -45,7 +45,7 @@ class Piece {
     const stepDirectionY = y - this.matrixPosition.y > 0 ? 1 : y === this.matrixPosition.y ? 0 : -1;
 
     // If the piece gets placed in the same position as what it started out as,
-    // then count that as moving through a piece, and that actually make sense I would say
+    // then count that as moving through a piece, and that actually makes sense I would say
     if (stepDirectionX === 0 && stepDirectionY === 0) return true;
 
     const tempPos = createVector(this.matrixPosition.x, this.matrixPosition.y);
@@ -60,28 +60,54 @@ class Piece {
     }
   }
 
+  // Does the piece belong to the current player's turn and is the piece placed inside of the board
+  matchPlayerTurnAndIsInsideBoard(x, y) {
+    return (this.white === whitesMove) && (x >= 0 && y >= 0 && x <= 7 && y <= 7);
+  }
+
+  isAllyAtLocation(x, y) {
+    const piece = board.getPiece(x, y);
+
+    return piece && piece.white === this.white;
+  }
+
   canMove(x, y) {
-    if (this.white === whitesMove && x >= 0 && y >= 0 && x <= 7 && y <= 7) {
-      const piece = board.getPiece(x, y);
-      // Don't move to a place where there is an ally
-      // This might be a problem with "Rokade" ability
-      if (piece) return piece.white !== this.white;
-      // It's okay to move to a place where there is no pieces
-      else return true;
-    }
+    return this.matchPlayerTurnAndIsInsideBoard(x, y) && !this.isAllyAtLocation(x, y);
   }
 }
-
 
 class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
+    this.check = false;
+    this.firstTurn = true;
   }
 
   canMove(x, y) {
-    if (super.canMove(x, y)) {
-      return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
+    if (this.matchPlayerTurnAndIsInsideBoard(x, y) && !board.isInCheck(x, y, this.white)) {
+      const piece = board.getPiece(x, y);
+      const isPieceAllyRook = piece && piece.white === this.white && piece.constructor.name === "Rook";
+      const isMovingThroughPieces = this.moveThroughPieces(x, y);
+
+      // Castling
+      // TODO: The king cannot currently be in check! I think this is fixed now
+      // TODO: The king cannot land on a tile where it would be in check! I think this is fixed now
+
+      // TODO: This code needs to be cleaned up!!
+      // TODO: No tiles which the king moves over can be threatened!
+      if (!this.check && isPieceAllyRook && piece.firstTurn && this.firstTurn && !isMovingThroughPieces) {
+        // Code here...
+        console.log("Castling!!!");
+
+      } else if (!this.isAllyAtLocation(x, y)) {
+        return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
+      }
     }
+  }
+
+  move(x, y) {
+    super.move(x, y);
+    if (this.firstTurn) this.firstTurn = false;
   }
 }
 
@@ -141,6 +167,7 @@ class Knight extends Piece {
 class Rook extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'rook.png'));
+    this.firstTurn = true;
   }
 
   canMove(x, y) {
@@ -152,6 +179,11 @@ class Rook extends Piece {
         return true;
       }
     }
+  }
+
+  move(x, y) {
+    super.move(x, y);
+    if (this.firstTurn) this.firstTurn = false;
   }
 }
 

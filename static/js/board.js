@@ -35,6 +35,7 @@ class Board {
 
   run() {
     // Functionality
+    this.checkKing();
     this.promotePawn();
     this.removeCapturedPiece();
     this.removePassantVulnerability();
@@ -52,6 +53,10 @@ class Board {
     const pawn = this.pieces.find(piece => piece.promoted);
 
     if (pawn) {
+      // You can actually choose between bishop, knight, rook, or queen to be replaced by your pawn.
+      // But we assume that the player always wants a queen. A knight could also be prefereable in some 
+      // situations, but we just replace the pawn with a queen with no questions asked for now.
+      // Look here for more info: https://en.wikipedia.org/wiki/Promotion_(chess)
       this.pieces.push(new Queen(pawn.matrixPosition.x, pawn.white ? 0 : 7, pawn.white));
       // Remove the promoted pawn
       this.pieces = this.pieces.filter(piece => !piece.promoted);
@@ -68,6 +73,18 @@ class Board {
 
   findPassantVulnerablePawn() {
     return this.pieces.find(piece => piece.passantVulnerability);
+  }
+
+  isInCheck(x, y, isWhite) {
+    // If an enemy piece can move to the specified location (x, y) then that would result in check
+    return this.pieces.filter(piece => piece.white !== isWhite).some(piece => piece.canMove(x, y));
+  }
+
+  // Maybe this function should in some way be integrated into the King class.
+  // But I thought that it would be better for the board class to handle this kind of functionality
+  checkKing() {
+    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white === whitesMove);
+    kingPiece.check = this.isInCheck(kingPiece.matrixPosition.x, kingPiece.matrixPosition.y, kingPiece.white);
   }
 
   showGrid() {
