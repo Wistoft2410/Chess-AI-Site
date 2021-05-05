@@ -160,12 +160,15 @@ class Pawn extends Piece {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
     this.promoted = false;
     this.firstTurn = true;
+    this.passantAttack = false;
     this.passantVulnerability = false;
   }
 
+  // We've made lots of boolean variables to make it easier to read what we are testing for!
+  // This functionen is sadly not 100% pure; it has some side effects in the form of setting
+  // some external boolean variables on the class itself instead of just returning true
   canMove(x, y) {
     if (super.canMove(x, y)) {
-
       const stepDirectionX = x - this.matrixPosition.x;
       const stepDirectionY = y - this.matrixPosition.y;
 
@@ -175,20 +178,26 @@ class Pawn extends Piece {
       const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
 
       // This is if the pawn is attacking a piece
-      if (board.getPiece(x, y)) {
-        return moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown);
+      if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) {
+        if (board.getPiece(x, y)) return true;
+        else {
+          const pawn = board.findPassantVulnerablePawn();
 
-      // This is if the pawn makes a passant attack
-      // TODO: This code needs to be cleaned up!
-      } else if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) {
-        const pawn = board.findPassantVulnerablePawn();
-        if (pawn && x === pawn.matrixPosition.x) {
-          if (y - pawn.matrixPosition.y === (this.white ? -1 : 1)) {
-            // TODO: This line should't actually be here, but it works for now!
-            pawn.captured = true;
-            return true;
+          if (pawn) {
+            const isOnTheSameXaxis = x === pawn.matrixPosition.x;
+            const madeAPassantMove = y - pawn.matrixPosition.y === (this.white ? -1 : 1);
+
+            // This is if the pawn makes a passant attack
+            if (isOnTheSameXaxis && madeAPassantMove) {
+              // This is an example of setting an exsternal variable which makes the function impure.
+              // We set this variable because we want to indicate if the pawn has made a passant attack move
+              // I don't know where else I should put this line sadly
+              this.passantAttack = true;
+              return true
+            }
           }
         }
+
       // As long as the pawn hasn't moved horizontally we are good to go
       } else if (stepDirectionX === 0) {
         const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
@@ -198,8 +207,9 @@ class Pawn extends Piece {
         // Move one field up
         if (isWhiteAndMoveUp || isBlackAndMoveDown) {
           return true;
-        // Move two fields up only if it's the pieces first turn
+        // Move two fields up only if it's the piece's first turn
         } else if (this.firstTurn && !isMovingThroughPieces && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
+          // This is an example of setting an exsternal variable which makes the function impure.
           // Make the piece vulnerable to a passant attack, not sure if this is the right place
           // to have the line though, but I don't know any other places to put the line
           this.passantVulnerability = true;
@@ -215,5 +225,8 @@ class Pawn extends Piece {
 
     // If the pawn is at the opposite side of the board then promote it
     if (this.white && y === 0 || !this.white && y === 7) this.promoted = true;
+
+    // If the pawn made a passant move then capture the pawn that was "passant" attacked!
+    if (this.passantAttack) board.findPassantVulnerablePawn().captured = true;
   }
 }
