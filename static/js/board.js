@@ -35,7 +35,6 @@ class Board {
 
   run() {
     // Functionality
-    this.checkKing();
     this.promotePawn();
     this.removeCapturedPiece();
     this.removePassantVulnerability();
@@ -76,14 +75,14 @@ class Board {
   }
 
   isInCheck(x, y, isWhite) {
-    // If an enemy piece can move to the specified location (x, y) then that would result in check
+    // If an enemy piece can move to the specified location (x, y) then that would result in check.
     return this.pieces.filter(piece => piece.white !== isWhite).some(piece => piece.canMove(x, y));
   }
 
   // Maybe this function should in some way be integrated into the King class.
   // But I thought that it would be better for the board class to handle this kind of functionality
   checkKing() {
-    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white === whitesMove);
+    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white !== whitesMove);
     kingPiece.check = this.isInCheck(kingPiece.matrixPosition.x, kingPiece.matrixPosition.y, kingPiece.white);
   }
 

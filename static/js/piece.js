@@ -142,9 +142,7 @@ class Bishop extends Piece {
       const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
       // Diagonal
-      if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y) && !isMovingThroughPieces) {
-        return true;
-      }
+      return abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y) && !isMovingThroughPieces;
     }
   }
 }
@@ -199,6 +197,7 @@ class Pawn extends Piece {
   // We've made lots of boolean variables to make it easier to read what we are testing for!
   // This functionen is sadly not 100% pure; it has some side effects in the form of setting
   // some external boolean variables on the class itself instead of just returning true
+  // TODO: try to fix that actually since we are calling canMove functions in board class!
   canMove(x, y) {
     if (super.canMove(x, y)) {
       const stepDirectionX = x - this.matrixPosition.x;
@@ -260,5 +259,10 @@ class Pawn extends Piece {
 
     // If the pawn made a passant move then capture the pawn that was "passant" attacked!
     if (this.passantAttack) board.findPassantVulnerablePawn().captured = true;
+
+    // You might think it's weird we call this function here, but we want to do that
+    // because after the player has moved
+    board.checkKing();
+    console.log("This console.log statement will not be reached in some cases for some odd reason :/");
   }
 }
