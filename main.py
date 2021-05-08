@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -15,8 +15,16 @@ def science():
     return render_template('videnskaben.html')
 
 
-@app.route('/game_setup', methods=('GET',))
+@app.route('/game_setup', methods=('GET', 'POST'))
 def game_setup():
+    if request.method == "POST":
+        black_or_white = request.form.get('blackOrWhite') != "on"
+        difficulty = request.form.get('difficulty')
+
+        print(black_or_white)
+        print(difficulty)
+
+        return redirect(url_for('game'))
     return render_template('game_setup.html')
 
 
