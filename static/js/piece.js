@@ -87,7 +87,7 @@ class King extends Piece {
     this.check = false;
     this.firstTurn = true;
     this.kingside = false;
-    this.queenside = false
+    this.queenside = false;
   }
 
   // This method is impure since we are setting external boolean variables.
