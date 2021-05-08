@@ -33,19 +33,34 @@ class Board {
     for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 1, false));
   }
 
-  run() {
-    // Functionality
-    this.promotePawn();
-    this.removeCapturedPiece();
-    this.removePassantVulnerability();
-
-    // Display
+  display() {
     this.showGrid();
     this.showPieces();
   }
 
-  removeCapturedPiece() {
-    this.pieces = this.pieces.filter(piece => !piece.captured);
+  showGrid() {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const boardProperty = `${(i + j) % 2 === 0 ? "white" : "black"}TileColor`;
+
+        fill(Board[boardProperty][0], Board[boardProperty][1], Board[boardProperty][2]);
+        rect(i * Board.TILE_SIZE, j * Board.TILE_SIZE, Board.TILE_SIZE, Board.TILE_SIZE);
+      }
+    } 
+  }
+
+  showPieces() {
+    for (let piece of this.pieces) piece.show();
+  }
+
+  run() {
+    // I think it's important that we call the functions in this order.
+    // Especially with calling checkKing() in the end, we want to remove captured pieces
+    // before calling checkKing()!
+    this.removeCapturedPiece();
+    this.removePassantVulnerability();
+    this.promotePawn();
+    this.checkKing();
   }
 
   promotePawn() {
@@ -62,6 +77,10 @@ class Board {
     }
   }
 
+  removeCapturedPiece() {
+    this.pieces = this.pieces.filter(piece => !piece.captured);
+  }
+
   removePassantVulnerability() {
     const pawn = this.findPassantVulnerablePawn();
     // If the pawn's color match the color of the current player's turn
@@ -74,39 +93,39 @@ class Board {
     return this.pieces.find(piece => piece.passantVulnerability);
   }
 
-  isInCheck(x, y, isWhite) {
-    // If an enemy piece can move to the specified location (x, y) then that would result in check.
+  checkKing() {
+    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white === whitesMove);
+    const matrixPosition = kingPiece.matrixPosition;
+
+    kingPiece.check = this.canEnemyPiecesMoveToLocation(matrixPosition.x, matrixPosition.y, kingPiece.white);
+  }
+
+  // This function should only be used for King pieces, but it should also be applicable to other pieces aswell,
+  // except pawns. It seems like pawns are a bit too complex, a bug would probably pop up with the passant move
+  isInCheck(pieceToCheck, x, y) {
+    const oldMatrixPosition = pieceToCheck.matrixPosition.copy();
+    // We set the piece's position exactly to the specified position (x, y) to really simulate
+    // if pieces can get to it's location and capture it!
+    // If we didn't do this a bug would pop up because of the moveThroughPieces() method inside the piece class.
+    // The method checks if a specific piece passes through other pieces on it's way to it's destination, if it does
+    // the method returns true, and we don't want it to pass through the "pieceToCheck" on it's way to the potential (x, y)
+    // coordinates!
+    pieceToCheck.matrixPosition.set(x, y);
+
+    const check = this.canEnemyPiecesMoveToLocation(x, y, pieceToCheck.white);
+
+    // And here we revert to the piece's old position as we don't know if the piece should move there,
+    // that is handled by the piece's move() method!
+    pieceToCheck.matrixPosition.set(oldMatrixPosition);
+
+    return check;
+  }
+
+  canEnemyPiecesMoveToLocation(x, y, isWhite) {
     return this.pieces.filter(piece => piece.white !== isWhite).some(piece => piece.canMove(x, y));
   }
 
-  // Maybe this function should in some way be integrated into the King class.
-  // But I thought that it would be better for the board class to handle this kind of functionality
-  checkKing() {
-    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white !== whitesMove);
-    kingPiece.check = this.isInCheck(kingPiece.matrixPosition.x, kingPiece.matrixPosition.y, kingPiece.white);
-  }
-
-  showGrid() {
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        const boardProperty = `${(i + j) % 2 === 0 ? "white" : "black"}TileColor`;
-
-        fill(Board[boardProperty][0], Board[boardProperty][1], Board[boardProperty][2]);
-        rect(i * Board.TILE_SIZE, j * Board.TILE_SIZE, Board.TILE_SIZE, Board.TILE_SIZE);
-      }
-    } 
-  }
-
-  showPieces() {
-    for (let i = 0; i < this.pieces.length; i++) this.pieces[i].show();
-  }
-
   getPiece(x, y) {
-    for (let piece of this.pieces) {
-      const matrixPosition = piece.matrixPosition;
-      if (matrixPosition.x === x && matrixPosition.y === y) return piece;
-    }
-
-    return null;
+    return this.pieces.find(piece => piece.matrixPosition.x === x && piece.matrixPosition.y === y)
   }
 }
