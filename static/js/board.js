@@ -121,8 +121,16 @@ class Board {
     return check;
   }
 
-  canEnemyPiecesMoveToLocation(x, y, isWhite) {
-    return this.pieces.filter(piece => piece.white !== isWhite).some(piece => piece.canMove(x, y));
+  canEnemyPiecesMoveToLocation(x, y, white) {
+    return this.pieces.filter(piece => piece.white !== white).some(piece => piece.canMove(x, y));
+  }
+
+  isKingInCheck(white) {
+    return this.pieces.find(piece => (
+      piece.constructor.name === "King" &&
+      piece.white === white &&
+      piece.check
+    ));
   }
 
   getPiece(x, y) {

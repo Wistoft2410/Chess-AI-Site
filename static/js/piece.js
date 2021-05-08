@@ -40,6 +40,15 @@ class Piece {
     );
   }
 
+  canMove(x, y) {
+    return (
+      this.isInsideBoard(x, y) &&
+      !this.isAllyAtLocation(x, y) &&
+      !this.moveThroughPieces(x, y) &&
+      !board.isKingInCheck(this.white)
+    );
+  }
+
   moveThroughPieces(x, y) {
     const stepDirectionX = x - this.matrixPosition.x > 0 ? 1 : x === this.matrixPosition.x ? 0 : -1;
     const stepDirectionY = y - this.matrixPosition.y > 0 ? 1 : y === this.matrixPosition.y ? 0 : -1;
@@ -61,10 +70,6 @@ class Piece {
     }
   }
 
-  canMove(x, y) {
-    return this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y);
-  }
-
   isInsideBoard(x, y) {
     return x >= 0 && y >= 0 && x <= 7 && y <= 7;
   }
@@ -82,7 +87,7 @@ class King extends Piece {
     this.check = false;
     this.firstTurn = true;
     this.kingside = false;
-    this.queenside = false;
+    this.queenside = false
   }
 
   // This method is impure since we are setting external boolean variables.
@@ -152,14 +157,13 @@ class Queen extends Piece {
 
   canMove(x, y) {
     if (super.canMove(x, y)) {
-      const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
       // Straight
-      if ((x === this.matrixPosition.x || y === this.matrixPosition.y) && !isMovingThroughPieces) {
+      if (x === this.matrixPosition.x || y === this.matrixPosition.y) {
         return true;
 
         // Diagonal
-      } else if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y) && !isMovingThroughPieces) {
+      } else if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y)) {
         return true;
       }
     }
@@ -173,10 +177,9 @@ class Bishop extends Piece {
 
   canMove(x, y) {
     if (super.canMove(x, y)) {
-      const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
       // Diagonal
-      return abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y) && !isMovingThroughPieces;
+      return abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y);
     }
   }
 }
@@ -187,11 +190,11 @@ class Knight extends Piece {
   }
 
   canMove(x, y) {
-    if (super.canMove(x, y)) {
+    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && !board.isKingInCheck(this.white)) {
       const horizontalMovement = abs(x - this.matrixPosition.x) === 2 && abs(y - this.matrixPosition.y) === 1;
       const verticalMovement = abs(x - this.matrixPosition.x) === 1 && abs(y - this.matrixPosition.y) === 2;
 
-      if (horizontalMovement || verticalMovement) return true;
+      return horizontalMovement || verticalMovement;
     }
   }
 }
@@ -204,12 +207,9 @@ class Rook extends Piece {
 
   canMove(x, y) {
     if (super.canMove(x, y)) {
-      const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
       // Straight
-      if ((x === this.matrixPosition.x || y === this.matrixPosition.y) && !isMovingThroughPieces) {
-        return true;
-      }
+      return x === this.matrixPosition.x || y === this.matrixPosition.y;
     }
   }
 
@@ -273,13 +273,12 @@ class Pawn extends Piece {
       } else if (stepDirectionX === 0 && !board.getPiece(x, y)) {
         const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
         const isBlackAndMove2Down = !this.white && stepDirectionY === 2;
-        const isMovingThroughPieces = this.moveThroughPieces(x, y);
 
         // Move one field up
         if (isWhiteAndMoveUp || isBlackAndMoveDown) {
           return true;
           // Move two fields up only if it's the piece's first turn
-        } else if (this.firstTurn && !isMovingThroughPieces && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
+        } else if (this.firstTurn && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
           // This is an example of setting an exsternal variable which makes the method impure.
           // Make the piece vulnerable to a passant attack, not sure if this is the right place
           // to have the line though, but I don't know any other places to put the line
