@@ -17,7 +17,7 @@ function setup() {
 
 function draw() {
   background(100);
-  board.run();
+  board.display();
 }
 
 function mousePressed(event) {
@@ -29,20 +29,26 @@ function mousePressed(event) {
     const y = floor(mouseY / Board.TILE_SIZE);
 
     movingPiece = board.getPiece(x, y);
-    if (movingPiece) movingPiece.moving = true;
+    // If the piece exists and the piece belongs to/is controlled by the current player,
+    // then the player is allowed to move that piece
+    if (movingPiece && movingPiece.white === whitesMove) movingPiece.moving = true;
   }
 }
 
 function mouseReleased() {
-  if (movingPiece) {
+  if (movingPiece && movingPiece.white === whitesMove) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
     if (movingPiece.canMove(x, y)) {
       movingPiece.move(x, y);
 
-      // Switch turn to the next player
+      // Here we switch the turn to the next player
       whitesMove = !whitesMove;
+
+      // Here we execute some necessary board functionality, and basically update 
+      // the state of the board after the player has made a turn
+      board.run();
     }
 
     movingPiece.moving = false;
