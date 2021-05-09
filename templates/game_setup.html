@@ -78,6 +78,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
 <script>
   // Setup and retrieve the proper html elements
   const difficultyFormEl = document.getElementById("difficulty");
@@ -91,7 +92,7 @@
   const upperLimit = 6;
 
 
-  const setProperBadgeColor = function (rangeVal) {
+  const setProperBadgeColor = function(rangeVal) {
     const Red = 255 * (rangeVal / upperLimit);
     const Green = 255 - (255 * (rangeVal / upperLimit));
     const Blue = 0;
@@ -99,26 +100,35 @@
     difficultyFormBadgeEl.style.background = `rgb(${Red}, ${Green}, ${Blue})`;
   }
 
-  // Setup the colors the first time!
-  setProperBadgeColor(0);
+  try {
+    blackOrWhite = JSON.parse(Cookies.get('black_or_white'));
+    difficulty = JSON.parse(Cookies.get('difficulty'));
+
+    switchToggle.checked = !blackOrWhite;
+    difficultyFormEl.value = difficulty;
+
+    setProperBadgeColor(difficultyFormEl.value);
+    if (switchToggle.checked) switchToggle.classList.add("checked-switch-background");
+  } catch (err) {}
+
 
   // Here we register an event listener to the range form input tag,
   // to capture the difficulty level the user has specified.
-  difficultyFormEl.addEventListener("input", function (event) {
+  difficultyFormEl.addEventListener("input", function(event) {
     setProperBadgeColor(event.target.value);
   });
 
-  leftArrow.addEventListener("click", function () {
+  leftArrow.addEventListener("click", function() {
     difficultyFormEl.value = parseInt(difficultyFormEl.value) - 1;
     setProperBadgeColor(difficultyFormEl.value);
   });
 
-  rightArrow.addEventListener("click", function () {
+  rightArrow.addEventListener("click", function() {
     difficultyFormEl.value = parseInt(difficultyFormEl.value) + 1;
     setProperBadgeColor(difficultyFormEl.value);
   });
 
-  switchToggle.addEventListener("change", function () {
+  switchToggle.addEventListener("change", function() {
     if (this.checked) switchToggle.classList.add("checked-switch-background");
     else switchToggle.classList.remove("checked-switch-background");
   });

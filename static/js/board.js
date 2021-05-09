@@ -1,7 +1,6 @@
 class Board {
   constructor() {
     this.pieces = [];
-
     this.setupPieces();
   }
 
@@ -10,27 +9,30 @@ class Board {
   static whiteTileColor = [245, 245, 220];
 
   setupPieces() {
+    const correctQueenPosition = blackOrWhite ? 3 : 4;
+    const correctKingPosition = !blackOrWhite ? 3 : 4;
+
     // All the white pieces
-    this.pieces.push(new Rook(0, 7, true));
-    this.pieces.push(new Knight(1, 7, true));
-    this.pieces.push(new Bishop(2, 7, true));
-    this.pieces.push(new Queen(3, 7, true));
-    this.pieces.push(new King(4, 7, true));
-    this.pieces.push(new Bishop(5, 7, true));
-    this.pieces.push(new Knight(6, 7, true));
-    this.pieces.push(new Rook(7, 7, true));
-    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 6, true));
+    this.pieces.push(new Rook(0, 7, blackOrWhite));
+    this.pieces.push(new Knight(1, 7, blackOrWhite));
+    this.pieces.push(new Bishop(2, 7, blackOrWhite));
+    this.pieces.push(new Queen(correctQueenPosition, 7, blackOrWhite));
+    this.pieces.push(new King(correctKingPosition, 7, blackOrWhite));
+    this.pieces.push(new Bishop(5, 7, blackOrWhite));
+    this.pieces.push(new Knight(6, 7, blackOrWhite));
+    this.pieces.push(new Rook(7, 7, blackOrWhite));
+    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 6, blackOrWhite));
 
     // All the black pieces
-    this.pieces.push(new Rook(0, 0, false));
-    this.pieces.push(new Knight(1, 0, false));
-    this.pieces.push(new Bishop(2, 0, false));
-    this.pieces.push(new Queen(3, 0, false));
-    this.pieces.push(new King(4, 0, false));
-    this.pieces.push(new Bishop(5, 0, false));
-    this.pieces.push(new Knight(6, 0, false));
-    this.pieces.push(new Rook(7, 0, false));
-    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 1, false));
+    this.pieces.push(new Rook(0, 0, !blackOrWhite));
+    this.pieces.push(new Knight(1, 0, !blackOrWhite));
+    this.pieces.push(new Bishop(2, 0, !blackOrWhite));
+    this.pieces.push(new Queen(correctQueenPosition, 0, !blackOrWhite));
+    this.pieces.push(new King(correctKingPosition, 0, !blackOrWhite));
+    this.pieces.push(new Bishop(5, 0, !blackOrWhite));
+    this.pieces.push(new Knight(6, 0, !blackOrWhite));
+    this.pieces.push(new Rook(7, 0, !blackOrWhite));
+    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 1, !blackOrWhite));
   }
 
   display() {
@@ -49,18 +51,25 @@ class Board {
     } 
   }
 
+  // TODO: Show scenarios! Shouldn't be to hard!
   showPieces() {
-    for (let piece of this.pieces) piece.show();
+    // We want to make sure that the piece the player is currently moving
+    // is displayed on top of every other piece for better UX
+    let pieceToShowLast;
+
+    for (let piece of this.pieces) {
+      if (piece.moving) pieceToShowLast = piece;
+      else piece.show();
+    }
+
+    if (pieceToShowLast) movingPiece.show();
   }
 
   run() {
-    // I think it's important that we call the functions in this order.
-    // Especially with calling checkKing() in the end, we want to remove captured pieces
-    // before calling checkKing()!
+    // I think it's important that we call the methods in this order.
     this.removeCapturedPiece();
     this.removePassantVulnerability();
     this.promotePawn();
-    this.checkKing();
   }
 
   promotePawn() {
@@ -71,9 +80,10 @@ class Board {
       // But we assume that the player always wants a queen. A knight could also be prefereable in some 
       // situations, but we just replace the pawn with a queen with no questions asked for now.
       // Look here for more info: https://en.wikipedia.org/wiki/Promotion_(chess)
-      this.pieces.push(new Queen(pawn.matrixPosition.x, pawn.white ? 0 : 7, pawn.white));
+      this.pieces.push(new Queen(pawn.matrixPosition.x, pawn.promotionPosition, pawn.white));
+
       // Remove the promoted pawn
-      this.pieces = this.pieces.filter(piece => !piece.promoted);
+      this.pieces = this.pieces.filter(piece => piece !== pawn);
     }
   }
 
@@ -93,44 +103,67 @@ class Board {
     return this.pieces.find(piece => piece.passantVulnerability);
   }
 
-  checkKing() {
-    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white === whitesMove);
-    const matrixPosition = kingPiece.matrixPosition;
+  checked(pieceToCheck) {
+    const x = pieceToCheck.matrixPosition.x;
+    const y = pieceToCheck.matrixPosition.y;
 
-    kingPiece.check = this.canEnemyPiecesMoveToLocation(matrixPosition.x, matrixPosition.y, kingPiece.white);
+    return !!this.pieces.filter(piece => piece.white !== pieceToCheck.white).some(piece => piece.canMove(x, y, true));
   }
 
-  // This function should only be used for King pieces, but it should also be applicable to other pieces aswell,
+  // This method should only be used for King pieces, but it should also be applicable to other pieces aswell,
   // except pawns. It seems like pawns are a bit too complex, a bug would probably pop up with the passant move
-  isInCheck(pieceToCheck, x, y) {
-    const oldMatrixPosition = pieceToCheck.matrixPosition.copy();
+  isInCheck(piece, x, y) {
+    const oldMatrixPosition = piece.matrixPosition.copy();
     // We set the piece's position exactly to the specified position (x, y) to really simulate
     // if pieces can get to it's location and capture it!
     // If we didn't do this a bug would pop up because of the moveThroughPieces() method inside the piece class.
     // The method checks if a specific piece passes through other pieces on it's way to it's destination, if it does
-    // the method returns true, and we don't want it to pass through the "pieceToCheck" on it's way to the potential (x, y)
+    // the method returns true, and we don't want it to pass through the "piece" on it's way to the potential (x, y)
     // coordinates!
-    pieceToCheck.matrixPosition.set(x, y);
+    piece.matrixPosition.set(x, y);
 
-    const check = this.canEnemyPiecesMoveToLocation(x, y, pieceToCheck.white);
+    const check = this.checked(piece);
 
     // And here we revert to the piece's old position as we don't know if the piece should move there,
     // that is handled by the piece's move() method!
-    pieceToCheck.matrixPosition.set(oldMatrixPosition);
+    piece.matrixPosition.set(oldMatrixPosition);
 
     return check;
   }
 
-  canEnemyPiecesMoveToLocation(x, y, white) {
-    return this.pieces.filter(piece => piece.white !== white).some(piece => piece.canMove(x, y));
-  }
+  // TODO: Clean this code up!!!
+  // This method should only be used on non king pieces!
+  // This method checks if a piece's move puts it's own king in danger/check!
+  isKingInCheck(pieceToCheck, x, y) {
+    const oldMatrixPosition = pieceToCheck.matrixPosition.copy();
 
-  isKingInCheck(white) {
-    return this.pieces.find(piece => (
-      piece.constructor.name === "King" &&
-      piece.white === white &&
-      piece.check
-    ));
+    let attackedPawn;
+    let attackedPiece;
+
+    if (pieceToCheck.constructor.name === "pawn" && pieceToCheck.moveTwoFields(x, y)) {
+      attackedPawn = board.findPassantVulnerablePawn();
+      this.pieces = this.pieces.filter(piece => piece !== attackedPawn);
+
+    } else {
+      attackedPiece = this.getPiece(x, y);
+      if (attackedPiece) this.pieces = this.pieces.filter(piece => piece !== attackedPiece);
+    }
+
+    // We set the piece's position exactly to the specified position (x, y) to really simulate
+    // if the piece was actually there when checking for king check!
+    pieceToCheck.matrixPosition.set(x, y);
+
+    const kingPiece = this.pieces.find(piece => piece.constructor.name === "King" && piece.white === pieceToCheck.white);
+
+    const check = this.checked(kingPiece);
+
+    // Here we revert back to the old position
+    pieceToCheck.matrixPosition.set(oldMatrixPosition);
+    // Also make sure to put the pieces back in again!
+    if (attackedPawn) this.pieces.push(attackedPawn);
+    if (attackedPiece) this.pieces.push(attackedPiece);
+
+    return check;
   }
 
   getPiece(x, y) {

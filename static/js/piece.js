@@ -40,13 +40,23 @@ class Piece {
     );
   }
 
-  canMove(x, y) {
+  canMove(x, y, skipKingCheck) {
     return (
       this.isInsideBoard(x, y) &&
       !this.isAllyAtLocation(x, y) &&
       !this.moveThroughPieces(x, y) &&
-      !board.isKingInCheck(this.white)
+      (skipKingCheck || !board.isKingInCheck(this, x, y))
     );
+  }
+
+  isInsideBoard(x, y) {
+    return x >= 0 && y >= 0 && x <= 7 && y <= 7;
+  }
+
+  isAllyAtLocation(x, y) {
+    const piece = board.getPiece(x, y);
+
+    return piece && piece.white === this.white;
   }
 
   moveThroughPieces(x, y) {
@@ -55,6 +65,10 @@ class Piece {
 
     // If the piece gets placed in the same position as what it started out as,
     // then count that as moving through a piece, and that actually makes sense I would say
+    // I actually don't need to have this line since we always call this.isAllyAtLocation(x, y) 
+    // before this method. We do it anyways though for the sake of more robustness and safety I guess! :)
+    // And the thing is if we didn't return here we would probably run into an infinite loop later if we called
+    // this method with no context and supplied it with some unfortunate parameters (x, y)!
     if (stepDirectionX === 0 && stepDirectionY === 0) return true;
 
     const tempPos = this.matrixPosition.copy();
@@ -69,22 +83,12 @@ class Piece {
       tempPos.y += stepDirectionY;
     }
   }
-
-  isInsideBoard(x, y) {
-    return x >= 0 && y >= 0 && x <= 7 && y <= 7;
-  }
-
-  isAllyAtLocation(x, y) {
-    const piece = board.getPiece(x, y);
-
-    return piece && piece.white === this.white;
-  }
 }
 
+// TODO: Make the king vulnerable to checkmate, so a player can lose and another can win!!
 class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
-    this.check = false;
     this.firstTurn = true;
     this.kingside = false;
     this.queenside = false;
@@ -93,7 +97,8 @@ class King extends Piece {
   // This method is impure since we are setting external boolean variables.
   // A way to fix that would be to extract the method into smaller methods
   // and then calling them twice (once in the canMove() method and once in the move() method)
-  canMove(x, y) {
+  // TODO: extract it's method into smaller methods!
+  canMove(x, y, skipKingCheck) {
     if (this.isInsideBoard(x, y)) {
       // Castling!
       // There are probably many different ways to actually perform castling,
@@ -106,11 +111,14 @@ class King extends Piece {
         const isMovingThroughPieces = this.moveThroughPieces(x, y);
         const firstTurn = piece.firstTurn && this.firstTurn;
 
-        if (!this.check && isRook && firstTurn && !isMovingThroughPieces) {
+        // TODO: Fix castling when playing as black
+        if (!board.checked(this) && isRook && firstTurn && !isMovingThroughPieces) {
           const kingside = piece.matrixPosition.x > this.matrixPosition.x;
           const stepDirectionX1 = kingside ? 1 : -1;
           const stepDirectionX2 = kingside ? 2 : -2;
 
+          // I don't need to use the skipKingCheck parameter here because the king would
+          // never make a castle move to try to attack an enemy piece (enemy king piece) xD
           const areTilesInCheck = (
             board.isInCheck(this, this.matrixPosition.x + stepDirectionX1, this.matrixPosition.y) ||
             board.isInCheck(this, this.matrixPosition.x + stepDirectionX2, this.matrixPosition.y)
@@ -123,7 +131,7 @@ class King extends Piece {
             return true;
           }
         }
-      } else if (!board.isInCheck(this, x, y)) {
+      } else if (skipKingCheck || !board.isInCheck(this, x, y)) {
         return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
       }
     }
@@ -155,8 +163,8 @@ class Queen extends Piece {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'queen.png'));
   }
 
-  canMove(x, y) {
-    if (super.canMove(x, y)) {
+  canMove(x, y, skipKingCheck) {
+    if (super.canMove(x, y, skipKingCheck)) {
 
       // Straight
       if (x === this.matrixPosition.x || y === this.matrixPosition.y) {
@@ -175,8 +183,8 @@ class Bishop extends Piece {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'bishop.png'));
   }
 
-  canMove(x, y) {
-    if (super.canMove(x, y)) {
+  canMove(x, y, skipKingCheck) {
+    if (super.canMove(x, y, skipKingCheck)) {
 
       // Diagonal
       return abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y);
@@ -189,8 +197,8 @@ class Knight extends Piece {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'knight.png'));
   }
 
-  canMove(x, y) {
-    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && !board.isKingInCheck(this.white)) {
+  canMove(x, y, skipKingCheck) {
+    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isKingInCheck(this, x, y))) {
       const horizontalMovement = abs(x - this.matrixPosition.x) === 2 && abs(y - this.matrixPosition.y) === 1;
       const verticalMovement = abs(x - this.matrixPosition.x) === 1 && abs(y - this.matrixPosition.y) === 2;
 
@@ -205,8 +213,8 @@ class Rook extends Piece {
     this.firstTurn = true;
   }
 
-  canMove(x, y) {
-    if (super.canMove(x, y)) {
+  canMove(x, y, skipKingCheck) {
+    if (super.canMove(x, y, skipKingCheck)) {
 
       // Straight
       return x === this.matrixPosition.x || y === this.matrixPosition.y;
@@ -224,79 +232,100 @@ class Pawn extends Piece {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
     this.promoted = false;
     this.firstTurn = true;
-    this.passantAttack = false;
     this.passantVulnerability = false;
+    this.promotionPosition = blackOrWhite ? this.white ? 0 : 7 : !this.white ? 0 : 7;
   }
 
-  // We've made lots of boolean variables to make it easier to read what we are testing for!
-  // This method is sadly not 100% pure; it has some side effects in the form of setting
-  // some external boolean variables on the class itself instead of just returning true.
-  // This method could look a bit better!
-  // One way to make this method pure is to extract parts of this method into smaller methods
-  // and then calling them as required in the move method to e.g. find out if the pawn made a
-  // passant attack or it became vulnerable to a passant attack! Doing this means that we would
-  // call these smaller methods two times (one in canMove() method and one in move() method),
-  // which is totally fine!
-  canMove(x, y) {
-    if (super.canMove(x, y)) {
-      const stepDirectionX = x - this.matrixPosition.x;
-      const stepDirectionY = y - this.matrixPosition.y;
+  canMove(x, y, skipKingCheck) {
+    if (super.canMove(x, y, skipKingCheck)) {
+      return this.normalAttack(x, y) || this.passantAttack(x, y) || this.moveOneField(x, y) || this.moveTwoFields(x, y);
+    }
+  }
 
-      const isWhiteAndMoveUp = this.white && stepDirectionY === -1;
-      const isBlackAndMoveDown = !this.white && stepDirectionY === 1;
+  // TODO: clean these methods up!!!
+  normalAttack(x, y) {
+    const playerWhiteDirection = blackOrWhite ? -1 : 1;
+    const playerBlackDirection = !blackOrWhite ? -1 : -1;
 
-      const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
+    const stepDirectionX = x - this.matrixPosition.x;
+    const stepDirectionY = y - this.matrixPosition.y;
 
-      // This is if the pawn is attacking a piece
-      if (moveDiagonal && (isWhiteAndMoveUp || isBlackAndMoveDown)) {
-        if (board.getPiece(x, y)) return true;
-        else {
-          const pawn = board.findPassantVulnerablePawn();
+    const isWhiteAndCorrectDirection1 = this.white && stepDirectionY === playerWhiteDirection;
+    const isBlackAndCorrectDirection1 = !this.white && stepDirectionY === playerBlackDirection;
 
-          if (pawn) {
-            const isOnTheSameXaxis = x === pawn.matrixPosition.x;
-            const madeAPassantMove = y - pawn.matrixPosition.y === (this.white ? -1 : 1);
+    const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
 
-            // This is if the pawn makes a passant attack
-            if (isOnTheSameXaxis && madeAPassantMove) {
-              // This is an example of setting an exsternal variable which makes the method impure.
-              // We set this variable because we want to indicate if the pawn has made a passant attack move.
-              // I don't know where else I should put this line sadly
-              this.passantAttack = true;
-              return true
-            }
-          }
-        }
-        // As long as the pawn hasn't moved horizontally and there isn't a piece at the location (x, y),
-        // we are good to go. Remember that a pawn can't capture a piece in front of it,
-        // it can only do that diagonally
-      } else if (stepDirectionX === 0 && !board.getPiece(x, y)) {
-        const isWhiteAndMove2Up = this.white && stepDirectionY === -2;
-        const isBlackAndMove2Down = !this.white && stepDirectionY === 2;
+    if (moveDiagonal && (isWhiteAndCorrectDirection1 || isBlackAndCorrectDirection1)) {
+      return !!board.getPiece(x, y);
+    }
+  }
 
-        // Move one field up
-        if (isWhiteAndMoveUp || isBlackAndMoveDown) {
-          return true;
-          // Move two fields up only if it's the piece's first turn
-        } else if (this.firstTurn && (isWhiteAndMove2Up || isBlackAndMove2Down)) {
-          // This is an example of setting an exsternal variable which makes the method impure.
-          // Make the piece vulnerable to a passant attack, not sure if this is the right place
-          // to have the line though, but I don't know any other places to put the line
-          this.passantVulnerability = true;
-          return true;
-        }
+  passantAttack(x, y) {
+    const playerWhiteDirection = blackOrWhite ? -1 : 1;
+    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+
+    const stepDirectionX = x - this.matrixPosition.x;
+    const stepDirectionY = y - this.matrixPosition.y;
+
+    const isWhiteAndCorrectDirection1 = this.white && stepDirectionY === playerWhiteDirection;
+    const isBlackAndCorrectDirection1 = !this.white && stepDirectionY === playerBlackDirection;
+
+    const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
+
+    if (moveDiagonal && (isWhiteAndCorrectDirection1 || isBlackAndCorrectDirection1)) {
+      const pawn = board.findPassantVulnerablePawn();
+
+      if (pawn) {
+        const isOnTheSameXaxis = x === pawn.matrixPosition.x;
+        const madeAPassantMove = y - pawn.matrixPosition.y === (this.white ? playerWhiteDirection : playerBlackDirection);
+
+        // This is if the pawn makes a passant attack
+        return isOnTheSameXaxis && madeAPassantMove;
       }
     }
   }
 
+  moveOneField(x, y) {
+    const playerWhiteDirection = blackOrWhite ? -1 : 1;
+    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+
+    const stepDirectionX = x - this.matrixPosition.x;
+    const stepDirectionY = y - this.matrixPosition.y;
+
+    const isWhiteAndCorrectDirection1 = this.white && stepDirectionY === playerWhiteDirection;
+    const isBlackAndCorrectDirection1 = !this.white && stepDirectionY === playerBlackDirection;
+
+    if (stepDirectionX === 0 && !board.getPiece(x, y)) {
+      return isWhiteAndCorrectDirection1 || isBlackAndCorrectDirection1;
+    }
+  }
+
+  moveTwoFields(x, y) {
+    const playerWhiteDirection = blackOrWhite ? -1 : 1;
+    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+
+    const stepDirectionX = x - this.matrixPosition.x;
+    const stepDirectionY = y - this.matrixPosition.y;
+
+    const isWhiteAndCorrectDirection2 = this.white && stepDirectionY === playerWhiteDirection * 2;
+    const isBlackAndCorrectDirection2 = !this.white && stepDirectionY === playerBlackDirection * 2;
+
+    if (stepDirectionX === 0 && !board.getPiece(x, y)) {
+      return this.firstTurn && (isWhiteAndCorrectDirection2 || isBlackAndCorrectDirection2);
+    }
+  }
+
   move(x, y) {
+    if (this.moveTwoFields(x, y)) this.passantVulnerability = true;
+    if (this.passantAttack(x, y)) board.findPassantVulnerablePawn().captured = true;
+
+    // We don't want to call super.move(x, y) at the beginning of this method since
+    // we don't want to change this piece's location before we check for things such
+    // as passantVulnerability among other things!
     super.move(x, y);
-    if (this.firstTurn) this.firstTurn = false;
 
     // If the pawn is at the opposite side of the board then promote it
-    if (this.white && y === 0 || !this.white && y === 7) this.promoted = true;
-
-    // If the pawn made a passant move then capture the pawn that was "passant" attacked!
-    if (this.passantAttack) board.findPassantVulnerablePawn().captured = true;
+    if (y === this.promotionPosition) this.promoted = true;
+    if (this.firstTurn) this.firstTurn = false;
   }
 }

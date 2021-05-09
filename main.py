@@ -1,5 +1,7 @@
 import os
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for
+import json
+from flask import Flask, render_template, send_from_directory, \
+    request, redirect, url_for, make_response
 
 app = Flask(__name__)
 
@@ -18,13 +20,26 @@ def science():
 @app.route('/game_setup', methods=('GET', 'POST'))
 def game_setup():
     if request.method == "POST":
-        black_or_white = request.form.get('blackOrWhite') != "on"
-        difficulty = request.form.get('difficulty')
+        # These cookies should expire in 2 years, so users
+        # who just want to play right away doesn't have to go 
+        # through the form again to submit the same data!
+        # Doing that means that the user can just directly go to 
+        # the "url_for('game')" url without configuring anything!
+        max_age = 60*60*24*365*2
 
-        print(black_or_white)
-        print(difficulty)
+        black_or_white = json.dumps(request.form.get('blackOrWhite') != "on")
+        difficulty = json.dumps(request.form.get('difficulty', default=0, type=int))
 
-        return redirect(url_for('game'))
+        respone = make_response(redirect(url_for('game')))
+
+        respone.set_cookie("black_or_white", value=black_or_white, max_age=max_age, path=url_for('game'))
+        respone.set_cookie("difficulty", value=difficulty, max_age=max_age, path=url_for('game'))
+
+        # We have to set the cookies for the game_setup page aswell since we need it their too!
+        respone.set_cookie("black_or_white", value=black_or_white, max_age=max_age, path=url_for('game_setup'))
+        respone.set_cookie("difficulty", value=difficulty, max_age=max_age, path=url_for('game_setup'))
+
+        return respone
     return render_template('game_setup.html')
 
 

@@ -1,17 +1,31 @@
 /*
  * This is a good video, although I don't find him funny: https://www.youtube.com/watch?v=DZfv0YgLJ2Q
- * Here is the github code used in the video: https://github.com/Code-Bullet/Chess-AI
+ * Here is the code used in the video: https://github.com/Code-Bullet/Chess-AI
   * */
 
 let movingPiece;
 let whitesMove;
 let board;
 
+let blackOrWhite;
+let difficulty;
+
 
 function setup() {
   createCanvas(800, 800);
   movingPiece = null;
   whitesMove = true;
+
+  // Retrieve cookie values
+  try {
+    blackOrWhite = JSON.parse(Cookies.get('black_or_white'));
+    difficulty = JSON.parse(Cookies.get('difficulty'));
+  } catch (err) {
+    // If an error occurs then we just use default settings    
+    blackOrWhite = true;
+    difficulty = 0;
+  }
+
   board = new Board();
 }
 
@@ -40,7 +54,7 @@ function mouseReleased() {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
-    if (movingPiece.canMove(x, y)) {
+    if (movingPiece.canMove(x, y, false)) {
       movingPiece.move(x, y);
 
       // Here we switch the turn to the next player
