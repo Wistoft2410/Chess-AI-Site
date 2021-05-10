@@ -34,7 +34,7 @@ function draw() {
   board.display();
 }
 
-function mousePressed(event) {
+function mousePressed() {
   // There is apparently some bug with right click.
   // It doens't make sence to respond to right click either,
   // So we are only responding to left click!

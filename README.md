@@ -5,6 +5,7 @@ Chess AI written in JavaScript. This not an actual AI using machine learning but
 * [Bootstrap](https://getbootstrap.com/)
 * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
 * [p5.js](https://p5js.org/)
+* [js-cookie](https://github.com/js-cookie/js-cookie)
 
 ### Notes
 TypeScript would've been pretty nice for this project!

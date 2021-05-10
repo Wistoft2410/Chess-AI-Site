@@ -5,7 +5,6 @@ class Piece {
       x * Board.TILE_SIZE + (Board.TILE_SIZE / 2),
       y * Board.TILE_SIZE + (Board.TILE_SIZE / 2)
     );
-
     this.captured = false;
     this.moving = false;
     this.white = isWhite;
@@ -19,12 +18,15 @@ class Piece {
   }
 
   show() {
+    const sizeWhenMoving = Board.TILE_SIZE * 1.1;
+    const sizeWhenStill  = Board.TILE_SIZE - 10;
+
     imageMode(CENTER);
 
     // Move with the mouse pointer
-    if (this.moving) image(this.image, mouseX, mouseY, Board.TILE_SIZE * 1.2, Board.TILE_SIZE * 1.2);
+    if (this.moving) image(this.image, mouseX, mouseY, sizeWhenMoving, sizeWhenMoving);
     else {
-      image(this.image, this.pixelPosition.x, this.pixelPosition.y, Board.TILE_SIZE - 10, Board.TILE_SIZE - 10);
+      image(this.image, this.pixelPosition.x, this.pixelPosition.y, sizeWhenStill, sizeWhenStill);
     }
   }
 
@@ -60,8 +62,8 @@ class Piece {
   }
 
   moveThroughPieces(x, y) {
-    const stepDirectionX = x - this.matrixPosition.x > 0 ? 1 : x === this.matrixPosition.x ? 0 : -1;
-    const stepDirectionY = y - this.matrixPosition.y > 0 ? 1 : y === this.matrixPosition.y ? 0 : -1;
+    const stepDirectionX = this.stepDirectionX(x) > 0 ? 1 : x === this.matrixPosition.x ? 0 : -1;
+    const stepDirectionY = this.stepDirectionY(y) > 0 ? 1 : y === this.matrixPosition.y ? 0 : -1;
 
     // If the piece gets placed in the same position as what it started out as,
     // then count that as moving through a piece, and that actually makes sense I would say
@@ -83,6 +85,14 @@ class Piece {
       tempPos.y += stepDirectionY;
     }
   }
+
+  stepDirectionY(y) {
+    return y - this.matrixPosition.y;
+  }
+
+  stepDirectionX(x) {
+    return x - this.matrixPosition.x;
+  }
 }
 
 // TODO: Make the king vulnerable to checkmate, so a player can lose and another can win!!
@@ -93,11 +103,11 @@ class King extends Piece {
   }
 
   canMove(x, y, skipKingCheck) {
-    return this.castling(x, y) || this.normalMove(x, y, skipKingCheck);
+    return this.isInsideBoard(x, y) && (this.castling(x, y) || this.normalMove(x, y, skipKingCheck));
   }
 
   castling(x, y) {
-    if (this.isInsideBoard(x, y) && this.isAllyAtLocation(x, y)) {
+    if (this.isAllyAtLocation(x, y)) {
       const piece = board.getPiece(x, y);
       const isRook = piece.constructor.name === "Rook";
       const isMovingThroughPieces = this.moveThroughPieces(x, y);
@@ -121,8 +131,8 @@ class King extends Piece {
   }
 
   normalMove(x, y, skipKingCheck) {
-    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isInCheck(this, x, y))) {
-      return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
+    if (!this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isInCheck(this, x, y))) {
+      return abs(this.stepDirectionX(x)) <= 1 && abs(this.stepDirectionY(y)) <= 1;
     }
   }
 
@@ -136,7 +146,7 @@ class King extends Piece {
       const rook = board.getPiece(x, y);
       const isRightSide = rook.matrixPosition.x > this.matrixPosition.x;
       const kingStepDirectionX = isRightSide ? 2 : -2;
-      const rookStepDirectionX = isRightSide ? blackOrWhite ? -2 : -3 : blackOrWhite ? 3 : 2;
+      const rookStepDirectionX = isRightSide ? blackOrWhite ? -2 : -3 : !blackOrWhite ? 2 : 3;
 
       super.move(this.matrixPosition.x + kingStepDirectionX, this.matrixPosition.y);
       rook.move(rook.matrixPosition.x + rookStepDirectionX, rook.matrixPosition.y);
@@ -161,7 +171,7 @@ class Queen extends Piece {
         return true;
 
         // Diagonal
-      } else if (abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y)) {
+      } else if (abs(this.stepDirectionX(x)) === abs(this.stepDirectionY(y))) {
         return true;
       }
     }
@@ -177,7 +187,7 @@ class Bishop extends Piece {
     if (super.canMove(x, y, skipKingCheck)) {
 
       // Diagonal
-      return abs(x - this.matrixPosition.x) === abs(y - this.matrixPosition.y);
+      return abs(this.stepDirectionX(x)) === abs(this.stepDirectionY(y));
     }
   }
 }
@@ -189,8 +199,8 @@ class Knight extends Piece {
 
   canMove(x, y, skipKingCheck) {
     if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isKingInCheck(this, x, y))) {
-      const horizontalMovement = abs(x - this.matrixPosition.x) === 2 && abs(y - this.matrixPosition.y) === 1;
-      const verticalMovement = abs(x - this.matrixPosition.x) === 1 && abs(y - this.matrixPosition.y) === 2;
+      const horizontalMovement = abs(this.stepDirectionX(x)) === 2 && abs(this.stepDirectionY(y)) === 1;
+      const verticalMovement = abs(this.stepDirectionX(x)) === 1 && abs(this.stepDirectionY(y)) === 2;
 
       return horizontalMovement || verticalMovement;
     }
@@ -220,10 +230,11 @@ class Rook extends Piece {
 class Pawn extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
-    this.promoted = false;
     this.firstTurn = true;
+    this.promoted = false;
     this.passantVulnerability = false;
     this.promotionPosition = blackOrWhite ? this.white ? 0 : 7 : !this.white ? 0 : 7;
+    this.moveDirection = blackOrWhite ? this.white ? -1 : 1 : !this.white ? -1 : 1;
   }
 
   canMove(x, y, skipKingCheck) {
@@ -232,90 +243,52 @@ class Pawn extends Piece {
     }
   }
 
-  // TODO: clean these methods up!!!
   normalAttack(x, y) {
-    const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : 1;
-
-    const stepDirectionX = x - this.matrixPosition.x;
-    const stepDirectionY = y - this.matrixPosition.y;
-
-    const isWhiteAndCorrectDirection1 = this.white && stepDirectionY === playerWhiteDirection;
-    const isBlackAndCorrectDirection1 = !this.white && stepDirectionY === playerBlackDirection;
-
-    const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
-
-    if (moveDiagonal && (isWhiteAndCorrectDirection1 || isBlackAndCorrectDirection1)) {
+    if (this.diagonalMoveAndProperDirection(x, y)) {
       return !!board.getPiece(x, y);
     }
   }
 
   passantAttack(x, y) {
-    const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : 1;
-
-    const stepDirectionX = x - this.matrixPosition.x;
-    const stepDirectionY = y - this.matrixPosition.y;
-
-    const isWhiteAndCorrectDirection1 = this.white && stepDirectionY === playerWhiteDirection;
-    const isBlackAndCorrectDirection1 = !this.white && stepDirectionY === playerBlackDirection;
-
-    const moveDiagonal = abs(stepDirectionX) === abs(stepDirectionY);
-
-    if (moveDiagonal && (isWhiteAndCorrectDirection1 || isBlackAndCorrectDirection1)) {
+    if (this.diagonalMoveAndProperDirection(x, y)) {
       const pawn = board.findPassantVulnerablePawn();
 
       if (pawn) {
         const isOnTheSameXaxis = x === pawn.matrixPosition.x;
-        const madeAPassantMove = y - pawn.matrixPosition.y === (this.white ? playerWhiteDirection : playerBlackDirection);
+        const madeAPassantMove = y - pawn.matrixPosition.y === this.moveDirection;
 
-        // This is if the pawn makes a passant attack
         return isOnTheSameXaxis && madeAPassantMove;
       }
     }
   }
 
+  diagonalMoveAndProperDirection(x, y) {
+    const moveDiagonal = abs(this.stepDirectionX(x)) === abs(this.stepDirectionY(y));
+    return moveDiagonal && this.stepDirectionY(y) === this.moveDirection;
+  }
+
   moveOneField(x, y) {
-    const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : 1;
-
-    const stepDirectionX = x - this.matrixPosition.x;
-    const stepDirectionY = y - this.matrixPosition.y;
-
-    const isWhiteAndCorrectDirection1 = this.white && stepDirectionY === playerWhiteDirection;
-    const isBlackAndCorrectDirection1 = !this.white && stepDirectionY === playerBlackDirection;
-
-    if (stepDirectionX === 0 && !board.getPiece(x, y)) {
-      return isWhiteAndCorrectDirection1 || isBlackAndCorrectDirection1;
+    if (this.verticalMovementAndNoPiece(x, y)) {
+      return this.stepDirectionY(y) === this.moveDirection;
     }
   }
 
   moveTwoFields(x, y) {
-    const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : 1;
-
-    const stepDirectionX = x - this.matrixPosition.x;
-    const stepDirectionY = y - this.matrixPosition.y;
-
-    const isWhiteAndCorrectDirection2 = this.white && stepDirectionY === playerWhiteDirection * 2;
-    const isBlackAndCorrectDirection2 = !this.white && stepDirectionY === playerBlackDirection * 2;
-
-    if (stepDirectionX === 0 && !board.getPiece(x, y)) {
-      return this.firstTurn && (isWhiteAndCorrectDirection2 || isBlackAndCorrectDirection2);
+    if (this.verticalMovementAndNoPiece(x, y)) {
+      return this.firstTurn && this.stepDirectionY(y) === this.moveDirection * 2;
     }
+  }
+
+  verticalMovementAndNoPiece(x, y) {
+    return this.stepDirectionX(x) === 0 && !board.getPiece(x, y);
   }
 
   move(x, y) {
     if (this.moveTwoFields(x, y)) this.passantVulnerability = true;
-    if (this.passantAttack(x, y)) board.findPassantVulnerablePawn().captured = true;
+    else if (this.passantAttack(x, y)) board.findPassantVulnerablePawn().captured = true;
+    else if (y === this.promotionPosition) this.promoted = true;
 
-    // We don't want to call super.move(x, y) at the beginning of this method since
-    // we don't want to change this piece's location before we check for things such
-    // as passantVulnerability among other things!
     super.move(x, y);
-
-    // If the pawn is at the opposite side of the board then promote it
-    if (y === this.promotionPosition) this.promoted = true;
     if (this.firstTurn) this.firstTurn = false;
   }
 }
