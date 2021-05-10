@@ -114,6 +114,11 @@ class Board {
   // except pawns. It seems like pawns are a bit too complex, a bug would probably pop up with the passant move
   isInCheck(piece, x, y) {
     const oldMatrixPosition = piece.matrixPosition.copy();
+
+    const attackedPiece = this.getPiece(x, y);
+
+    if (attackedPiece) this.pieces = this.pieces.filter(piece => piece !== attackedPiece);
+
     // We set the piece's position exactly to the specified position (x, y) to really simulate
     // if pieces can get to it's location and capture it!
     // If we didn't do this a bug would pop up because of the moveThroughPieces() method inside the piece class.
@@ -127,6 +132,7 @@ class Board {
     // And here we revert to the piece's old position as we don't know if the piece should move there,
     // that is handled by the piece's move() method!
     piece.matrixPosition.set(oldMatrixPosition);
+    if (attackedPiece) this.pieces.push(attackedPiece);
 
     return check;
   }
@@ -137,13 +143,11 @@ class Board {
   isKingInCheck(pieceToCheck, x, y) {
     const oldMatrixPosition = pieceToCheck.matrixPosition.copy();
 
-    let attackedPawn;
     let attackedPiece;
 
-    if (pieceToCheck.constructor.name === "pawn" && pieceToCheck.moveTwoFields(x, y)) {
-      attackedPawn = board.findPassantVulnerablePawn();
-      this.pieces = this.pieces.filter(piece => piece !== attackedPawn);
-
+    if (pieceToCheck.constructor.name === "Pawn" && pieceToCheck.passantAttack(x, y)) {
+      attackedPiece = board.findPassantVulnerablePawn();
+      this.pieces = this.pieces.filter(piece => piece !== attackedPiece);
     } else {
       attackedPiece = this.getPiece(x, y);
       if (attackedPiece) this.pieces = this.pieces.filter(piece => piece !== attackedPiece);
@@ -159,8 +163,7 @@ class Board {
 
     // Here we revert back to the old position
     pieceToCheck.matrixPosition.set(oldMatrixPosition);
-    // Also make sure to put the pieces back in again!
-    if (attackedPawn) this.pieces.push(attackedPawn);
+    // Also make sure to put the piece back in again!
     if (attackedPiece) this.pieces.push(attackedPiece);
 
     return check;

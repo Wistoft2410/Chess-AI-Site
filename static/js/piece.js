@@ -90,50 +90,39 @@ class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
     this.firstTurn = true;
-    this.kingside = false;
-    this.queenside = false;
   }
 
-  // This method is impure since we are setting external boolean variables.
-  // A way to fix that would be to extract the method into smaller methods
-  // and then calling them twice (once in the canMove() method and once in the move() method)
-  // TODO: extract it's method into smaller methods!
   canMove(x, y, skipKingCheck) {
-    if (this.isInsideBoard(x, y)) {
-      // Castling!
-      // There are probably many different ways to actually perform castling,
-      // especially in the real world xD
-      // But in this specific game the only way to perform castling is by
-      // moving the king over to a rook's current position (starting position)!
-      if (this.isAllyAtLocation(x, y)) {
-        const piece = board.getPiece(x, y);
-        const isRook = piece.constructor.name === "Rook";
-        const isMovingThroughPieces = this.moveThroughPieces(x, y);
-        const firstTurn = piece.firstTurn && this.firstTurn;
+    return this.castling(x, y) || this.normalMove(x, y, skipKingCheck);
+  }
 
-        // TODO: Fix castling when playing as black
-        if (!board.checked(this) && isRook && firstTurn && !isMovingThroughPieces) {
-          const kingside = piece.matrixPosition.x > this.matrixPosition.x;
-          const stepDirectionX1 = kingside ? 1 : -1;
-          const stepDirectionX2 = kingside ? 2 : -2;
+  castling(x, y) {
+    if (this.isInsideBoard(x, y) && this.isAllyAtLocation(x, y)) {
+      const piece = board.getPiece(x, y);
+      const isRook = piece.constructor.name === "Rook";
+      const isMovingThroughPieces = this.moveThroughPieces(x, y);
+      const firstTurn = piece.firstTurn && this.firstTurn;
 
-          // I don't need to use the skipKingCheck parameter here because the king would
-          // never make a castle move to try to attack an enemy piece (enemy king piece) xD
-          const areTilesInCheck = (
-            board.isInCheck(this, this.matrixPosition.x + stepDirectionX1, this.matrixPosition.y) ||
-            board.isInCheck(this, this.matrixPosition.x + stepDirectionX2, this.matrixPosition.y)
-          );
+      if (!board.checked(this) && isRook && firstTurn && !isMovingThroughPieces) {
+        const isRightSide = piece.matrixPosition.x > this.matrixPosition.x;
+        const stepDirectionX1 = isRightSide ? 1 : -1;
+        const stepDirectionX2 = isRightSide ? 2 : -2;
 
-          if (!areTilesInCheck) {
-            // Here is where we are setting external variables which makes this method impure sadly
-            this.kingside = kingside;
-            this.queenside = !kingside
-            return true;
-          }
-        }
-      } else if (skipKingCheck || !board.isInCheck(this, x, y)) {
-        return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
+        // I don't need to use the skipKingCheck parameter here because the king would
+        // never make a castle move to try to attack an enemy piece (enemy king piece) xD
+        const areTilesInCheck = (
+          board.isInCheck(this, this.matrixPosition.x + stepDirectionX1, this.matrixPosition.y) ||
+          board.isInCheck(this, this.matrixPosition.x + stepDirectionX2, this.matrixPosition.y)
+        );
+
+        return !areTilesInCheck;
       }
+    }
+  }
+
+  normalMove(x, y, skipKingCheck) {
+    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isInCheck(this, x, y))) {
+      return abs(x - this.matrixPosition.x) <= 1 && abs(y - this.matrixPosition.y) <= 1;
     }
   }
 
@@ -143,10 +132,11 @@ class King extends Piece {
     // I thought that it would be better for the King class to handle
     // this since it's the King you have to move and initate castling in 
     // this game version of chess!
-    if (this.firstTurn && (this.kingside || this.queenside)) {
+    if (this.castling(x, y)) {
       const rook = board.getPiece(x, y);
-      const kingStepDirectionX = this.kingside ? 2 : -2;
-      const rookStepDirectionX = this.kingside ? -2 : 3;
+      const isRightSide = rook.matrixPosition.x > this.matrixPosition.x;
+      const kingStepDirectionX = isRightSide ? 2 : -2;
+      const rookStepDirectionX = isRightSide ? blackOrWhite ? -2 : -3 : blackOrWhite ? 3 : 2;
 
       super.move(this.matrixPosition.x + kingStepDirectionX, this.matrixPosition.y);
       rook.move(rook.matrixPosition.x + rookStepDirectionX, rook.matrixPosition.y);
@@ -245,7 +235,7 @@ class Pawn extends Piece {
   // TODO: clean these methods up!!!
   normalAttack(x, y) {
     const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+    const playerBlackDirection = !blackOrWhite ? -1 : 1;
 
     const stepDirectionX = x - this.matrixPosition.x;
     const stepDirectionY = y - this.matrixPosition.y;
@@ -262,7 +252,7 @@ class Pawn extends Piece {
 
   passantAttack(x, y) {
     const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+    const playerBlackDirection = !blackOrWhite ? -1 : 1;
 
     const stepDirectionX = x - this.matrixPosition.x;
     const stepDirectionY = y - this.matrixPosition.y;
@@ -287,7 +277,7 @@ class Pawn extends Piece {
 
   moveOneField(x, y) {
     const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+    const playerBlackDirection = !blackOrWhite ? -1 : 1;
 
     const stepDirectionX = x - this.matrixPosition.x;
     const stepDirectionY = y - this.matrixPosition.y;
@@ -302,7 +292,7 @@ class Pawn extends Piece {
 
   moveTwoFields(x, y) {
     const playerWhiteDirection = blackOrWhite ? -1 : 1;
-    const playerBlackDirection = !blackOrWhite ? -1 : -1;
+    const playerBlackDirection = !blackOrWhite ? -1 : 1;
 
     const stepDirectionX = x - this.matrixPosition.x;
     const stepDirectionY = y - this.matrixPosition.y;
