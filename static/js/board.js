@@ -9,6 +9,7 @@ class Board {
   static whiteTileColor = [245, 245, 220];
   static canMoveColor = [124, 252, 0];
   static originalPositionColor = [105, 105, 105];
+  static kingInCheckColor = [255, 0, 0];
 
   setupPieces() {
     const properQueenPosition = blackOrWhite ? 3 : 4;
@@ -40,6 +41,7 @@ class Board {
   display() {
     this.showGrid();
     this.showScenariosForMovingPiece();
+    this.showKingInCheck();
     this.showPieces();
   }
 
@@ -67,7 +69,6 @@ class Board {
     if (pieceToShowLast) movingPiece.show();
   }
 
-  // TODO: You're missing king check red color on king tile!!
   showScenariosForMovingPiece() {
     const movingPiece = this.pieces.find(piece => piece.moving);
 
@@ -75,15 +76,17 @@ class Board {
       ellipseMode(CENTER);
       const ellipseSize = Board.TILE_SIZE - 20;
 
-      // Show original position
-      fill(Board.originalPositionColor[0], Board.originalPositionColor[1], Board.originalPositionColor[2]);
-      ellipse(movingPiece.pixelPosition.x, movingPiece.pixelPosition.y, ellipseSize, ellipseSize);
+      // Show original position only for pieces that are not kings and in check at the same time.
+      // We have a different color for that one!
+      if (movingPiece.constructor.name !== "King" || !this.checked(movingPiece)) {
+        fill(Board.originalPositionColor[0], Board.originalPositionColor[1], Board.originalPositionColor[2]);
+        ellipse(movingPiece.pixelPosition.x, movingPiece.pixelPosition.y, ellipseSize, ellipseSize);
+      }
 
       // Show scenarios
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
           if (movingPiece.canMove(x, y)) {
-            // TODO: Maybe make some utility method for this?
             const pixelPositionX = x * Board.TILE_SIZE + (Board.TILE_SIZE / 2);
             const pixelPositionY = y * Board.TILE_SIZE + (Board.TILE_SIZE / 2);
 
@@ -92,6 +95,21 @@ class Board {
           }
         }
       } 
+    }
+  }
+
+  showKingInCheck() {
+    for (let piece of this.pieces) {
+      if (piece.constructor.name === "King" && this.checked(piece)) {
+        // We probably don't need to call ellipseMode(CENTER) here, since we
+        // do it in the showScenariosForMovingPiece() method
+        // but we do it here anyway for robustness!
+        ellipseMode(CENTER);
+        const ellipseSize = Board.TILE_SIZE - 20;
+
+        fill(Board.kingInCheckColor[0], Board.kingInCheckColor[1], Board.kingInCheckColor[2]);
+        ellipse(piece.pixelPosition.x, piece.pixelPosition.y, ellipseSize, ellipseSize);
+      }
     }
   }
 
@@ -162,7 +180,7 @@ class Board {
     return check;
   }
 
-  // This method should only be used on non king pieces!
+  // This method should only be used for non king pieces!
   // This method checks if a piece's move puts it's own king in danger/check!
   isKingInCheck(pieceToCheck, x, y) {
     const oldMatrixPosition = pieceToCheck.matrixPosition.copy();
