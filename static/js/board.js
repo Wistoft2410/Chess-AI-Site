@@ -56,19 +56,6 @@ class Board {
     } 
   }
 
-  showPieces() {
-    // We want to make sure that the piece the player is currently moving
-    // is displayed on top of every other piece for better UX
-    let pieceToShowLast;
-
-    for (let piece of this.pieces) {
-      if (piece.moving) pieceToShowLast = piece;
-      else piece.show();
-    }
-
-    if (pieceToShowLast) movingPiece.show();
-  }
-
   showScenariosForMovingPiece() {
     const movingPiece = this.pieces.find(piece => piece.moving);
 
@@ -86,7 +73,7 @@ class Board {
       // Show scenarios
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-          if (movingPiece.canMove(x, y)) {
+          if (movingPiece.canMove(x, y, false)) {
             const pixelPositionX = x * Board.TILE_SIZE + (Board.TILE_SIZE / 2);
             const pixelPositionY = y * Board.TILE_SIZE + (Board.TILE_SIZE / 2);
 
@@ -113,11 +100,25 @@ class Board {
     }
   }
 
+  showPieces() {
+    // We want to make sure that the piece the player is currently moving
+    // is displayed on top of every other piece for better UX
+    let pieceToShowLast;
+
+    for (let piece of this.pieces) {
+      if (piece.moving) pieceToShowLast = piece;
+      else piece.show();
+    }
+
+    if (pieceToShowLast) movingPiece.show();
+  }
+
   run() {
     // I think it's important that we call the methods in this order.
     this.removeCapturedPiece();
     this.removePassantVulnerability();
     this.promotePawn();
+    this.checkMate();
   }
 
   removeCapturedPiece() {
@@ -149,6 +150,24 @@ class Board {
       // Remove the promoted pawn
       this.pieces = this.pieces.filter(piece => piece !== pawn);
     }
+  }
+
+  checkMate() {
+    const checkmate = this.pieces.filter(piece => piece.white === whitesMove).every(piece => {
+      for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+          // return false to indicate that a piece could move to a
+          // specific place and therefore indicating that the king
+          // is not in checkmate. It could be in check though, but
+          // that is a different matter
+          if (piece.canMove(x, y, false)) return false;
+        }
+      }
+
+      return true;
+    });
+
+    if (checkmate) endGame = true;
   }
 
   // This method should only be used for King pieces, but it should also be applicable to other pieces aswell,
