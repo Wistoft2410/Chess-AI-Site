@@ -14,6 +14,11 @@
   border-radius: 1.6rem;
 }
 
+#game-status-message{
+
+  display: none; 
+}
+
 .proper-icon-size {
   font-size: 2em;
 }
