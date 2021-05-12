@@ -2,6 +2,8 @@ class Board {
   constructor() {
     this.pieces = [];
     this.setupPieces();
+    this.whiteScore = 1290;
+    this.blackScore = 1290;
   }
 
   static TILE_SIZE = 100;
@@ -118,6 +120,7 @@ class Board {
     this.removeCapturedPiece();
     this.removePassantVulnerability();
     this.promotePawn();
+    this.calculateScores();
     this.checkMate();
   }
 
@@ -152,6 +155,16 @@ class Board {
     }
   }
 
+  calculateScores() {
+    this.whiteScore = this.pieces.filter(piece => piece.white).reduce(this.reduceFunction);
+    this.blackScore = this.pieces.filter(piece => !piece.white).reduce(this.reduceFunction);
+  }
+
+  reduceFunction(total, piece) {
+    const previousValue = typeof total === 'object' ? total.materialScore : total;
+    return previousValue + piece.materialScore;
+  }
+
   checkMate() {
     const checkmate = this.pieces.filter(piece => piece.white === whitesMove).every(piece => {
       for (let x = 0; x < 8; x++) {
@@ -167,7 +180,7 @@ class Board {
       return true;
     });
 
-    if (checkmate) endGame = true;
+    endGame = checkmate;
   }
 
   // This method should only be used for King pieces, but it should also be applicable to other pieces aswell,

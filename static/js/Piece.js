@@ -9,6 +9,7 @@ class Piece {
     this.moving = false;
     this.white = isWhite;
     this.image = loadImage(image);
+    this.materialScore = 0;
   }
 
   static generatePieceImgPath(isWhite, fileNameExludingFirstChar) {
@@ -99,6 +100,7 @@ class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
     this.firstTurn = true;
+    this.materialScore = 900;
   }
 
   canMove(x, y, skipKingCheck) {
@@ -160,6 +162,7 @@ class King extends Piece {
 class Queen extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'queen.png'));
+    this.materialScore = 90;
   }
 
   canMove(x, y, skipKingCheck) {
@@ -180,6 +183,7 @@ class Queen extends Piece {
 class Bishop extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'bishop.png'));
+    this.materialScore = 30;
   }
 
   canMove(x, y, skipKingCheck) {
@@ -194,6 +198,7 @@ class Bishop extends Piece {
 class Knight extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'knight.png'));
+    this.materialScore = 30;
   }
 
   canMove(x, y, skipKingCheck) {
@@ -210,6 +215,7 @@ class Rook extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'rook.png'));
     this.firstTurn = true;
+    this.materialScore = 50;
   }
 
   canMove(x, y, skipKingCheck) {
@@ -234,6 +240,7 @@ class Pawn extends Piece {
     this.passantVulnerability = false;
     this.promotionPosition = blackOrWhite ? this.white ? 0 : 7 : !this.white ? 0 : 7;
     this.moveDirection = blackOrWhite ? this.white ? -1 : 1 : !this.white ? -1 : 1;
+    this.materialScore = 10;
   }
 
   canMove(x, y, skipKingCheck) {
