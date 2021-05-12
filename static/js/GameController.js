@@ -17,7 +17,7 @@ function setup() {
   createCanvas(800, 800);
   movingPiece = null;
   whitesMove = true;
-  endGame = true;
+  endGame = false;
 
   // Retrieve cookie values
   try {
