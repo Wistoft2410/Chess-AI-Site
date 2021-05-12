@@ -2,8 +2,6 @@ class Board {
   constructor() {
     this.pieces = [];
     this.setupPieces();
-    this.whiteScore = 1290;
-    this.blackScore = 1290;
   }
 
   static TILE_SIZE = 100;
@@ -121,7 +119,6 @@ class Board {
     this.removePassantVulnerability();
     this.promotePawn();
     this.checkMate();
-    this.calculateScores();
   }
 
   removeCapturedPiece() {
@@ -153,16 +150,6 @@ class Board {
       // Remove the promoted pawn
       this.pieces = this.pieces.filter(piece => piece !== pawn);
     }
-  }
-
-  calculateScores() {
-    this.whiteScore = this.pieces.filter(piece => piece.white).reduce(this.reduceFunction);
-    this.blackScore = this.pieces.filter(piece => !piece.white).reduce(this.reduceFunction);
-  }
-
-  reduceFunction(total, piece) {
-    const previousValue = typeof total === 'object' ? total.materialScore : total;
-    return previousValue + piece.materialScore;
   }
 
   checkMate() {

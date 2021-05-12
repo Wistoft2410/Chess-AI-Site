@@ -16,6 +16,28 @@ class AI {
   }
 
   evaluateBoardState() {
-    return board.whiteScore - board.blackScore ;
+    return board.whiteScore - board.blackScore;
+  }
+}
+
+class SimulationBoard extends Board {
+  constructor() {
+    this.whiteScore = 1290;
+    this.blackScore = 1290;
+  }
+
+  run() {
+    super.run();
+    calculateScores();
+  }
+
+  calculateScores() {
+    this.whiteScore = this.pieces.filter(piece => piece.white).reduce(this.reduceFunction);
+    this.blackScore = this.pieces.filter(piece => !piece.white).reduce(this.reduceFunction);
+  }
+
+  reduceFunction(total, piece) {
+    const previousValue = typeof total === 'object' ? total.materialScore : total;
+    return previousValue + piece.materialScore;
   }
 }
