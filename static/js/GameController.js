@@ -7,7 +7,7 @@ let movingPiece;
 let whitesMove;
 let board;
 
-let endGame
+let endGame;
 
 let blackOrWhite;
 let difficulty;
