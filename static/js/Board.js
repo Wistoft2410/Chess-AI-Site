@@ -120,8 +120,8 @@ class Board {
     this.removeCapturedPiece();
     this.removePassantVulnerability();
     this.promotePawn();
-    this.calculateScores();
     this.checkMate();
+    this.calculateScores();
   }
 
   removeCapturedPiece() {

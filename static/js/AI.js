@@ -6,8 +6,9 @@ class AI {
     if (maximizingPlayer) {
       maxEvaluation = Number.NEGATIVE_INFINITY;
 
-      for () {
-      }
+      //for () {
+      //}
+
     } else {
       minEvaluation = Number.POSITIVE_INFINITY;
 
