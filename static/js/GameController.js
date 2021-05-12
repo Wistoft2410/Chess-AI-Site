@@ -17,7 +17,7 @@ function setup() {
   createCanvas(800, 800);
   movingPiece = null;
   whitesMove = true;
-  endGame = false;
+  endGame = true;
 
   // Retrieve cookie values
   try {
@@ -37,23 +37,19 @@ function draw() {
   board.display();
 
   if (endGame) {
-    // Do something here when the game ends. Right now the only way it can end is where
-    // one player wins and the other loses, there is no draw like stalemate currently
-    if (whitesMove) {
-      console.log(`white player has been checkmated!!!`);
-      console.log("Which means that black player won!");
-    } else {
-      console.log(`black player has been checkmated!!!`);
-      console.log("Which means that white player won!");
-    }
+    const messageElement = document.getElementById("game-status-message");
+    const h5 = messageElement.querySelector(".card-title");
+
+    if (whitesMove) h5.textContent = `${h5.textContent} BLACK PLAYER!`;
+    else h5.textContent = `${h5.textContent} WHITE PLAYER!`;
+
+    messageElement.classList.remove("invisible");
+    noLoop();
   }
 }
 
 function mousePressed() {
-  // There is apparently some bug with right click.
-  // It doens't make sence to respond to right click either,
-  // So we are only responding to left click!
-  if (!endGame && mouseButton === LEFT) {
+  if (mouseButton === LEFT) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 

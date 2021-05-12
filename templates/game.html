@@ -4,17 +4,13 @@
 {% block content %}
   <div class="row justify-content-center mt-5">
     <main class="col canvas">
-
-      <div class="card" id="game-status-message" style="width: 18rem;">
-        <img class="card-img-top" src="..." alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">The winner is: </h5>
-            <p class="card-text">The winner is white! </p>
-            <a href="#" class="btn btn-primary">New game</a>
-            <a href="#" class="btn btn-primary">Return home</a>
+      <div class="card mx-auto invisible" id="game-status-message">
+        <div class="card-body text-center">
+          <h5 class="card-title">The winner is</h5>
+          <a href="#" class="btn btn-primary mx-1" role="button">New Game</a>
+          <a href="#" class="btn btn-primary mx-1" role="button">Return Home</a>
         </div>
       </div>
-
     </main>
   </div>
 {% endblock %}
@@ -25,8 +21,8 @@
   <!-- js-cookie JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
   <!-- Our own custom made JavaScript code containing all of the chess related stuff -->
-  <script src="../static/js/piece.js"></script>
-  <script src="../static/js/board.js"></script>
-  <script src="../static/js/sketch.js"></script>
-  <script src="../static/js/MouseActivty.js"></script>
+  <script src="../static/js/Piece.js"></script>
+  <script src="../static/js/Board.js"></script>
+  <script src="../static/js/MouseActivity.js"></script>
+  <script src="../static/js/GameController.js"></script>
 {% endblock %}

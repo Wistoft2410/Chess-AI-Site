@@ -95,7 +95,6 @@ class Piece {
   }
 }
 
-// TODO: Make the king vulnerable to checkmate, so a player can lose and another can win!!
 class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));

@@ -15,8 +15,12 @@
 }
 
 #game-status-message{
-
-  display: none; 
+  z-index: 3;
+  position: absolute;
+  left: 0; 
+  right: 0; 
+  top: 25%;
+  width: 19rem;
 }
 
 .proper-icon-size {
