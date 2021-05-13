@@ -1,17 +1,11 @@
 class AI {
   minimax(board, depth, maximizingPlayer) {
-    // TODO: Checking for endGame variable might not be the best choice
     if (depth === 0 || board.checkmate) return this.evaluateBoardState(board);
 
     if (maximizingPlayer) {
       maxEvaluation = Number.NEGATIVE_INFINITY;
-
-      //for () {
-      //}
-
     } else {
       minEvaluation = Number.POSITIVE_INFINITY;
-
     }
   }
 
@@ -23,8 +17,8 @@ class AI {
 class SimulationBoard extends Board {
   constructor() {
     super();
-    this.whiteScore = null;
-    this.blackScore = null;
+    this.whiteScore;
+    this.blackScore;
     this.calculateScores();
   }
 

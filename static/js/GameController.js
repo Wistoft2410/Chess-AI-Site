@@ -57,7 +57,7 @@ function mousePressed() {
 }
 
 function mouseReleased() {
-  if (movingPiece) {
+  if (movingPiece && movingPiece.white === whitesMove) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
