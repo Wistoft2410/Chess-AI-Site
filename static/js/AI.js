@@ -1,4 +1,8 @@
 class AI {
+  // TODO: I've come to the conclusion that we should deep clone the "SimulationBoard" class
+  // at every new move during the simulation in the minimax algorithm because that is way easier
+  // than defining some undo move method on the class. Yes the performance might not be perfect
+  // but from a maintainability point of view this is pretty good!
   minimax(board, depth, maximizingPlayer) {
     if (depth === 0 || board.checkmate) return this.evaluateBoardState(board);
 
