@@ -1,6 +1,7 @@
 class Board {
   constructor() {
     this.pieces = [];
+    this.checkmate = false;
     this.setupPieces();
   }
 
@@ -109,23 +110,22 @@ class Board {
       if (piece.moving) pieceToShowLast = piece;
       else piece.show();
     }
-
-    if (pieceToShowLast) movingPiece.show();
+    if (pieceToShowLast) pieceToShowLast.show();
   }
 
-  run() {
+  run(whitesMove) {
     // I think it's important that we call the methods in this order.
     this.removeCapturedPiece();
-    this.removePassantVulnerability();
+    this.removePassantVulnerability(whitesMove);
     this.promotePawn();
-    this.checkMate();
+    this.checkMate(whitesMove);
   }
 
   removeCapturedPiece() {
     this.pieces = this.pieces.filter(piece => !piece.captured);
   }
 
-  removePassantVulnerability() {
+  removePassantVulnerability(whitesMove) {
     const pawn = this.findPassantVulnerablePawn();
     // If the pawn's color match the color of the current player's turn
     // then that means that the second player didn't make a passant attack
@@ -152,8 +152,8 @@ class Board {
     }
   }
 
-  checkMate() {
-    const checkmate = this.pieces.filter(piece => piece.white === whitesMove).every(piece => {
+  checkMate(whitesMove) {
+    this.checkmate = this.pieces.filter(piece => piece.white === whitesMove).every(piece => {
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
           // return false to indicate that a piece could move to a
@@ -166,8 +166,6 @@ class Board {
 
       return true;
     });
-
-    endGame = checkmate;
   }
 
   // This method should only be used for King pieces, but it should also be applicable to other pieces aswell,

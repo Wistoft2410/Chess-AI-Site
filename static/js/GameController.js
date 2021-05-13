@@ -3,23 +3,16 @@
  * Here is the code used in the video: https://github.com/Code-Bullet/Chess-AI
   * */
 
-let movingPiece;
-let whitesMove;
-let board;
-
-let endGame;
-
 let blackOrWhite;
 let difficulty;
 
+let board;
+let whitesMove;
+let movingPiece;
 
 function setup() {
   createCanvas(800, 800);
-  movingPiece = null;
-  whitesMove = true;
-  endGame = false;
 
-  // Retrieve cookie values
   try {
     blackOrWhite = JSON.parse(Cookies.get('black_or_white'));
     difficulty = JSON.parse(Cookies.get('difficulty'));
@@ -29,6 +22,9 @@ function setup() {
     difficulty = 0;
   }
 
+  whitesMove = true;
+  movingPiece = null;
+
   board = new Board();
 }
 
@@ -36,7 +32,7 @@ function draw() {
   background(100);
   board.display();
 
-  if (endGame) {
+  if (board.checkmate) {
     const messageElement = document.getElementById("game-status-message");
     const h5 = messageElement.querySelector(".card-title");
 
@@ -61,7 +57,7 @@ function mousePressed() {
 }
 
 function mouseReleased() {
-  if (movingPiece && movingPiece.white === whitesMove) {
+  if (movingPiece) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
@@ -73,7 +69,7 @@ function mouseReleased() {
 
       // Here we execute some necessary board functionality, and basically update 
       // the state of the board after the player has made a turn
-      board.run();
+      board.run(whitesMove);
     }
 
     movingPiece.moving = false;
