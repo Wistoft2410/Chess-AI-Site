@@ -7,8 +7,8 @@
       <div class="card mx-auto invisible" id="game-status-message">
         <div class="card-body text-center">
           <h5 class="card-title">The winner is</h5>
-          <a href="#" class="btn btn-primary mx-1" role="button">New Game</a>
-          <a href="#" class="btn btn-primary mx-1" role="button">Return Home</a>
+          <a href="{{ url_for('game') }}" class="btn btn-primary mx-1" role="button">New Game</a>
+          <a href="{{ url_for('home') }}" class="btn btn-primary mx-1" role="button">Return Home</a>
         </div>
       </div>
     </main>
