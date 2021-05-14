@@ -1,23 +1,3 @@
-class AI {
-  // TODO: I've come to the conclusion that we should deep clone the "SimulationBoard" class
-  // at every new move during the simulation in the minimax algorithm because that is way easier
-  // than defining some undo move method on the class. Yes the performance might not be perfect
-  // but from a maintainability point of view this is pretty good!
-  minimax(board, depth, maximizingPlayer) {
-    if (depth === 0 || board.checkmate) return this.evaluateBoardState(board);
-
-    if (maximizingPlayer) {
-      maxEvaluation = Number.NEGATIVE_INFINITY;
-    } else {
-      minEvaluation = Number.POSITIVE_INFINITY;
-    }
-  }
-
-  evaluateBoardState(board) {
-    return board.whiteScore - board.blackScore;
-  }
-}
-
 class SimulationBoard extends Board {
   constructor() {
     super();
@@ -47,5 +27,28 @@ class SimulationBoard extends Board {
   reduceFunction(total, piece) {
     const previousValue = typeof total === 'object' ? total.materialScore : total;
     return previousValue + piece.materialScore;
+  }
+
+  setup(location, destination) {
+    const piece = this.getPiece(location.x, location.y);
+    piece.move(destination.x, destination.y);
+  }
+
+  // We've come to the conclusion that we should deep clone the "this.pieces" array at
+  // every new move during the simulation in the minimax algorithm because that is way easier
+  // than defining some "undo" move method on the class. Yes the performance might not be perfect
+  // but from a maintainability point of view this is pretty good!
+  minimax(position, depth, maximizingPlayer) {
+    if (depth === 0 || this.checkmate) return this.evaluateBoardState();
+
+    if (maximizingPlayer) {
+      maxEvaluation = Number.NEGATIVE_INFINITY;
+    } else {
+      minEvaluation = Number.POSITIVE_INFINITY;
+    }
+  }
+
+  evaluateBoardState() {
+    return this.whiteScore - this.blackScore;
   }
 }

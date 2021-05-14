@@ -17,26 +17,26 @@ class Board {
     const properKingPosition = !blackOrWhite ? 3 : 4;
 
     // All the white pieces
-    this.pieces.push(new Rook(0, 7, blackOrWhite));
-    this.pieces.push(new Knight(1, 7, blackOrWhite));
-    this.pieces.push(new Bishop(2, 7, blackOrWhite));
-    this.pieces.push(new Queen(properQueenPosition, 7, blackOrWhite));
-    this.pieces.push(new King(properKingPosition, 7, blackOrWhite));
-    this.pieces.push(new Bishop(5, 7, blackOrWhite));
-    this.pieces.push(new Knight(6, 7, blackOrWhite));
-    this.pieces.push(new Rook(7, 7, blackOrWhite));
-    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 6, blackOrWhite));
+    this.pieces.push(new Rook(this, 0, 7, blackOrWhite));
+    this.pieces.push(new Knight(this, 1, 7, blackOrWhite));
+    this.pieces.push(new Bishop(this, 2, 7, blackOrWhite));
+    this.pieces.push(new Queen(this, properQueenPosition, 7, blackOrWhite));
+    this.pieces.push(new King(this, properKingPosition, 7, blackOrWhite));
+    this.pieces.push(new Bishop(this, 5, 7, blackOrWhite));
+    this.pieces.push(new Knight(this, 6, 7, blackOrWhite));
+    this.pieces.push(new Rook(this, 7, 7, blackOrWhite));
+    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(this, i, 6, blackOrWhite));
 
     // All the black pieces
-    this.pieces.push(new Rook(0, 0, !blackOrWhite));
-    this.pieces.push(new Knight(1, 0, !blackOrWhite));
-    this.pieces.push(new Bishop(2, 0, !blackOrWhite));
-    this.pieces.push(new Queen(properQueenPosition, 0, !blackOrWhite));
-    this.pieces.push(new King(properKingPosition, 0, !blackOrWhite));
-    this.pieces.push(new Bishop(5, 0, !blackOrWhite));
-    this.pieces.push(new Knight(6, 0, !blackOrWhite));
-    this.pieces.push(new Rook(7, 0, !blackOrWhite));
-    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(i, 1, !blackOrWhite));
+    this.pieces.push(new Rook(this, 0, 0, !blackOrWhite));
+    this.pieces.push(new Knight(this, 1, 0, !blackOrWhite));
+    this.pieces.push(new Bishop(this, 2, 0, !blackOrWhite));
+    this.pieces.push(new Queen(this, properQueenPosition, 0, !blackOrWhite));
+    this.pieces.push(new King(this, properKingPosition, 0, !blackOrWhite));
+    this.pieces.push(new Bishop(this, 5, 0, !blackOrWhite));
+    this.pieces.push(new Knight(this, 6, 0, !blackOrWhite));
+    this.pieces.push(new Rook(this, 7, 0, !blackOrWhite));
+    for (let i = 0; i < 8; i++) this.pieces.push(new Pawn(this, i, 1, !blackOrWhite));
   }
 
   display() {
@@ -145,7 +145,7 @@ class Board {
       // But we assume that the player always wants a queen. A knight could also be prefereable in some situations,
       // but we just replace the pawn with a queen with no questions asked for now.
       // Look here for more info: https://en.wikipedia.org/wiki/Promotion_(chess)
-      this.pieces.push(new Queen(pawn.matrixPosition.x, pawn.promotionPosition, pawn.white));
+      this.pieces.push(new Queen(this, pawn.matrixPosition.x, pawn.promotionPosition, pawn.white));
 
       // Remove the promoted pawn
       this.pieces = this.pieces.filter(piece => piece !== pawn);

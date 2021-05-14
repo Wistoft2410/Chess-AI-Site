@@ -1,5 +1,5 @@
 class Piece {
-  constructor(x, y, isWhite, image) {
+  constructor(board, x, y, isWhite, image) {
     this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(
       x * Board.TILE_SIZE + (Board.TILE_SIZE / 2),
@@ -9,6 +9,7 @@ class Piece {
     this.moving = false;
     this.white = isWhite;
     this.image = loadImage(image);
+    this.board = board;
     this.materialScore = 0;
   }
 
@@ -33,7 +34,7 @@ class Piece {
 
   move(x, y) {
     // If there is a piece at the location, then capture it!
-    const piece = board.getPiece(x, y);
+    const piece = this.board.getPiece(x, y);
     if (piece) piece.captured = true;
 
     this.matrixPosition.set(x, y);
@@ -48,7 +49,7 @@ class Piece {
       this.isInsideBoard(x, y) &&
       !this.isAllyAtLocation(x, y) &&
       !this.moveThroughPieces(x, y) &&
-      (skipKingCheck || !board.isKingInCheck(this, x, y))
+      (skipKingCheck || !this.board.isKingInCheck(this, x, y))
     );
   }
 
@@ -57,7 +58,7 @@ class Piece {
   }
 
   isAllyAtLocation(x, y) {
-    const piece = board.getPiece(x, y);
+    const piece = this.board.getPiece(x, y);
 
     return piece && piece.white === this.white;
   }
@@ -80,7 +81,7 @@ class Piece {
 
     // We call isInsideBoard() because we don't want to do a search indefinitely outside the board!
     while((tempPos.x !== x || tempPos.y !== y) && this.isInsideBoard(tempPos.x, tempPos.y)) {
-      if (board.getPiece(tempPos.x, tempPos.y)) return true;
+      if (this.board.getPiece(tempPos.x, tempPos.y)) return true;
 
       tempPos.x += stepDirectionX;
       tempPos.y += stepDirectionY;
@@ -97,8 +98,8 @@ class Piece {
 }
 
 class King extends Piece {
-  constructor(x, y, isWhite) {
-    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
+  constructor(board, x, y, isWhite) {
+    super(board, x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'king.png'));
     this.firstTurn = true;
     this.materialScore = 900;
   }
@@ -109,12 +110,12 @@ class King extends Piece {
 
   castling(x, y) {
     if (this.isAllyAtLocation(x, y)) {
-      const piece = board.getPiece(x, y);
+      const piece = this.board.getPiece(x, y);
       const isRook = piece.constructor.name === "Rook";
       const isMovingThroughPieces = this.moveThroughPieces(x, y);
       const firstTurn = piece.firstTurn && this.firstTurn;
 
-      if (!board.checked(this) && isRook && firstTurn && !isMovingThroughPieces) {
+      if (!this.board.checked(this) && isRook && firstTurn && !isMovingThroughPieces) {
         const isRightSide = piece.matrixPosition.x > this.matrixPosition.x;
         const stepDirectionX1 = isRightSide ? 1 : -1;
         const stepDirectionX2 = isRightSide ? 2 : -2;
@@ -122,8 +123,8 @@ class King extends Piece {
         // I don't need to use the skipKingCheck parameter here because the king would
         // never make a castle move to try to attack an enemy piece (enemy king piece) xD
         const areTilesInCheck = (
-          board.isInCheck(this, this.matrixPosition.x + stepDirectionX1, this.matrixPosition.y) ||
-          board.isInCheck(this, this.matrixPosition.x + stepDirectionX2, this.matrixPosition.y)
+          this.board.isInCheck(this, this.matrixPosition.x + stepDirectionX1, this.matrixPosition.y) ||
+          this.board.isInCheck(this, this.matrixPosition.x + stepDirectionX2, this.matrixPosition.y)
         );
 
         return !areTilesInCheck;
@@ -132,7 +133,7 @@ class King extends Piece {
   }
 
   normalMove(x, y, skipKingCheck) {
-    if (!this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isInCheck(this, x, y))) {
+    if (!this.isAllyAtLocation(x, y) && (skipKingCheck || !this.board.isInCheck(this, x, y))) {
       return abs(this.stepDirectionX(x)) <= 1 && abs(this.stepDirectionY(y)) <= 1;
     }
   }
@@ -144,7 +145,7 @@ class King extends Piece {
     // this since it's the King you have to move and initate castling in 
     // this game version of chess!
     if (this.castling(x, y)) {
-      const rook = board.getPiece(x, y);
+      const rook = this.board.getPiece(x, y);
       const isRightSide = rook.matrixPosition.x > this.matrixPosition.x;
       const kingStepDirectionX = isRightSide ? 2 : -2;
       const rookStepDirectionX = isRightSide ? blackOrWhite ? -2 : -3 : !blackOrWhite ? 2 : 3;
@@ -160,8 +161,8 @@ class King extends Piece {
 }
 
 class Queen extends Piece {
-  constructor(x, y, isWhite) {
-    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'queen.png'));
+  constructor(board, x, y, isWhite) {
+    super(board, x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'queen.png'));
     this.materialScore = 90;
   }
 
@@ -181,8 +182,8 @@ class Queen extends Piece {
 }
 
 class Bishop extends Piece {
-  constructor(x, y, isWhite) {
-    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'bishop.png'));
+  constructor(board, x, y, isWhite) {
+    super(board, x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'bishop.png'));
     this.materialScore = 30;
   }
 
@@ -196,13 +197,13 @@ class Bishop extends Piece {
 }
 
 class Knight extends Piece {
-  constructor(x, y, isWhite) {
-    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'knight.png'));
+  constructor(board, x, y, isWhite) {
+    super(board, x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'knight.png'));
     this.materialScore = 30;
   }
 
   canMove(x, y, skipKingCheck) {
-    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && (skipKingCheck || !board.isKingInCheck(this, x, y))) {
+    if (this.isInsideBoard(x, y) && !this.isAllyAtLocation(x, y) && (skipKingCheck || !this.board.isKingInCheck(this, x, y))) {
       const horizontalMovement = abs(this.stepDirectionX(x)) === 2 && abs(this.stepDirectionY(y)) === 1;
       const verticalMovement = abs(this.stepDirectionX(x)) === 1 && abs(this.stepDirectionY(y)) === 2;
 
@@ -212,8 +213,8 @@ class Knight extends Piece {
 }
 
 class Rook extends Piece {
-  constructor(x, y, isWhite) {
-    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'rook.png'));
+  constructor(board, x, y, isWhite) {
+    super(board, x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'rook.png'));
     this.firstTurn = true;
     this.materialScore = 50;
   }
@@ -233,8 +234,8 @@ class Rook extends Piece {
 }
 
 class Pawn extends Piece {
-  constructor(x, y, isWhite) {
-    super(x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
+  constructor(board, x, y, isWhite) {
+    super(board, x, y, isWhite, Piece.generatePieceImgPath(isWhite, 'pawn.png'));
     this.firstTurn = true;
     this.promoted = false;
     this.passantVulnerability = false;
@@ -251,13 +252,13 @@ class Pawn extends Piece {
 
   normalAttack(x, y) {
     if (this.diagonalMoveAndProperDirection(x, y)) {
-      return !!board.getPiece(x, y);
+      return !!this.board.getPiece(x, y);
     }
   }
 
   passantAttack(x, y) {
     if (this.diagonalMoveAndProperDirection(x, y)) {
-      const pawn = board.findPassantVulnerablePawn();
+      const pawn = this.board.findPassantVulnerablePawn();
 
       if (pawn) {
         const isOnTheSameXaxis = x === pawn.matrixPosition.x;
@@ -286,12 +287,12 @@ class Pawn extends Piece {
   }
 
   verticalMovementAndNoPiece(x, y) {
-    return this.stepDirectionX(x) === 0 && !board.getPiece(x, y);
+    return this.stepDirectionX(x) === 0 && !this.board.getPiece(x, y);
   }
 
   move(x, y) {
     if (this.moveTwoFields(x, y)) this.passantVulnerability = true;
-    else if (this.passantAttack(x, y)) board.findPassantVulnerablePawn().captured = true;
+    else if (this.passantAttack(x, y)) this.board.findPassantVulnerablePawn().captured = true;
     else if (y === this.promotionPosition) this.promoted = true;
 
     super.move(x, y);

@@ -7,6 +7,7 @@ let blackOrWhite;
 let difficulty;
 
 let board;
+let simulationBoard;
 let whitesMove;
 let movingPiece;
 
@@ -26,6 +27,7 @@ function setup() {
   movingPiece = null;
 
   board = new Board();
+  simulationBoard = new SimulationBoard();
 }
 
 function draw() {
@@ -62,14 +64,22 @@ function mouseReleased() {
     const y = floor(mouseY / Board.TILE_SIZE);
 
     if (movingPiece.canMove(x, y, false)) {
+      // Prepare the simulationBoard for the move the player has made
+      simulationBoard.setup(movingPiece.matrixPosition, createVector(x, y));
+
+      // Move the actual piece on the real board
       movingPiece.move(x, y);
 
-      // Here we switch the turn to the next player
+      // Switch the turn to the other player
       whitesMove = !whitesMove;
 
-      // Here we execute some necessary board functionality, and basically update 
+      // Execute some necessary board functionality, and basically update 
       // the state of the board after the player has made a turn
       board.run(whitesMove);
+
+      // Computer calculates what move to do next
+      // const locationAndDestination = simulationBoard.move();
+      // board.setup();
     }
 
     movingPiece.moving = false;
