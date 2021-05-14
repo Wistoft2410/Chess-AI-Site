@@ -28,7 +28,7 @@ def game_setup():
         max_age = 60*60*24*365*2
 
         black_or_white = json.dumps(request.form.get('blackOrWhite') != "on")
-        difficulty = json.dumps(request.form.get('difficulty', default=0, type=int))
+        difficulty = json.dumps(request.form.get('difficulty', default=1, type=int))
 
         respone = make_response(redirect(url_for('game')))
 
