@@ -5,13 +5,45 @@ class AI {
     this.board = new SimulationBoard();
   }
 
+  // This method is used for the global "this.board" variable in this class (AI class)
+  setup(location, destination) {
+    const piece = this.board.getPiece(location.x, location.y);
+    piece.move(destination.x, destination.y);
+
+    this.board.run(!blackOrWhite);
+  }
+
+  makeMove(realBoard) {
+    // Computer calculates what move to do next
+    const moveInfo = computer.calculateBestMove();
+    const piece = realBoard.getPiece(moveInfo[0], moveInfo[0]);
+    piece.move(moveInfo[1].x, moveInfo[1].y);
+
+    // Switch the turn to the human player
+    whitesMove = !whitesMove;
+
+    // Execute some necessary board functionality, and basically update
+    // the state of the board after the computer has made a turn
+    realBoard.run(whitesMove);
+
+    return whitesMove;
+  }
+
   calculateBestMove() {
-    const moveArr = this.minimax(this.board, difficulty, !blackOrWhite)[0];
-    const piece = this.board.getPiece(moveArr[0].x, moveArr[0].y);
-    piece.move(moveArr[1].x, moveArr[1].y);
+    const moveInfo = this.minimax(this.board, difficulty, !blackOrWhite)[1];
+
+    const xLocation = moveInfo[1][0].x;
+    const yLocation = moveInfo[1][0].y;
+
+    const xDestination = moveInfo[1][1].x;
+    const yDestination = moveInfo[1][1].y;
+
+    const piece = this.board.getPiece(xLocation, yLocation);
+
+    piece.move(xDestination, xDestination);
     this.board.run(blackOrWhite);
 
-    return moveArr;
+    return [x, y];
   }
 
   // We've come to the conclusion that we should deep clone the SimulationBoard class instances,
@@ -20,7 +52,7 @@ class AI {
   // the best but from a maintainability point of view this is pretty good!
   // maximizingPlayer when true is indicating white player and false is indicating black player
   minimax(board, depth, maximizingPlayer) {
-    if (depth === 0 || board.checkmate) return [null, this.evaluateBoardState(board)];
+    if (depth === 0 || board.checkmate) return [this.evaluateBoardState(board)];
 
     let bestMove = null;
 
@@ -34,24 +66,24 @@ class AI {
               const childBoard = _.cloneDeep(board);
               const pieceToMove = childBoard.pieces.find(childPiece => childPiece.matrixPosition.equals(piece.matrixPosition));
 
-              // Save the original positioin (location)
-              const originalPosition = pieceToMove.matrixPosition.copy();
+              // Save the location (original position)
+              const location = pieceToMove.matrixPosition.copy();
 
               pieceToMove.move(x, y);
               childBoard.run(false);
 
-              const evaluation = this.minimax(childBoard, depth - 1, false)[1];
+              const evaluation = this.minimax(childBoard, depth - 1, false)[0];
 
               if (evaluation > maxEvaluation) {
                 maxEvaluation = evaluation;
-                bestMove = [originalPosition, createVector(x, y)];
+                bestMove = [location, createVector(x, y)];
               }
             }
           }
         }
       }
 
-      return [bestMove, maxEvaluation];
+      return [maxEvaluation, bestMove];
     } else {
       let minEvaluation = Number.POSITIVE_INFINITY;
 
@@ -62,36 +94,29 @@ class AI {
               const childBoard = _.cloneDeep(board);
               const pieceToMove = childBoard.pieces.find(childPiece => childPiece.matrixPosition.equals(piece.matrixPosition));
 
-              // Save the original positioin (location)
-              const originalPosition = pieceToMove.matrixPosition.copy();
+              // Save the location (original position)
+              const location = pieceToMove.matrixPosition.copy();
 
               pieceToMove.move(x, y);
               childBoard.run(true);
 
-              const evaluation = this.minimax(childBoard, depth - 1, true)[1];
+              const evaluation = this.minimax(childBoard, depth - 1, true)[0];
 
               if (evaluation < minEvaluation) {
                 minEvaluation = evaluation;
-                bestMove = [originalPosition, createVector(x, y)];
+                bestMove = [location, createVector(x, y)];
               }
             }
           }
         }
       }
 
-      return [bestMove, minEvaluation];
+      return [minEvaluation, bestMove];
     }
   }
 
   evaluateBoardState(board) {
     return board.whiteScore - board.blackScore;
-  }
-
-  // This method is used for the global "this.board" variable in this class (AI class)
-  setup(location, destination, whitesMove) {
-    const piece = this.board.getPiece(location.x, location.y);
-    piece.move(destination.x, destination.y);
-    this.board.run(whitesMove);
   }
 }
 
@@ -100,7 +125,6 @@ class SimulationBoard extends Board {
     super();
     this.whiteScore;
     this.blackScore;
-    this.calculateScores();
   }
 
   run(whitesMove) {
@@ -113,7 +137,10 @@ class SimulationBoard extends Board {
     // The AI has no idea if checkmate is a good idea or a bad idea, so what we do is we remove the King
     // from the board to indicate it has been captured (checkmated) which resolves in the highest loss in 
     // piece value. By doing this we make sure that the AI is aware of the danger and greatness of checkmate!
-    if (this.checkmate) this.pieces = this.pieces.filter(piece => piece.white !== whitesMove || piece.constructor.name !== "King");
+    if (this.checkmate) this.pieces = this.pieces.filter(piece => (
+      piece.white !== whitesMove ||
+      piece.constructor.name !== "King"
+    ));
   }
 
   calculateScores() {

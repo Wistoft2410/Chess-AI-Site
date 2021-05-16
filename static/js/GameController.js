@@ -24,19 +24,7 @@ function setup() {
   board = new Board();
   computer = new AI();
 
-  if (!blackOrWhite) {
-    // Computer calculates what move to do next
-    const moveArr = computer.calculateBestMove();
-    const piece = board.getPiece(moveArr[0].x, moveArr[0].y);
-    piece.move(moveArr[1].x, moveArr[1].y);
-
-    // Switch the turn to the human player
-    whitesMove = !whitesMove;
-
-    // Execute some necessary board functionality, and basically update
-    // the state of the board after the computer has made a turn
-    board.run(whitesMove);
-  }
+  if (!blackOrWhite) computer.makeMove(board);
 }
 
 function draw() {
@@ -61,20 +49,26 @@ function mousePressed() {
     const y = floor(mouseY / Board.TILE_SIZE);
 
     movingPiece = board.getPiece(x, y);
-    // If the piece exists and the piece belongs to/is controlled by the current player,
-    // then the player is allowed to move that piece
-    if (movingPiece && movingPiece.white === blackOrWhite && blackOrWhite === whitesMove) movingPiece.moving = true;
+
+    const owningMovingPiece = movingPiece && movingPiece.white === blackOrWhite;
+    const rightTurn = blackOrWhite === whitesMove;
+
+    if (owningMovingPiece && rightTurn) movingPiece.moving = true;
   }
 }
 
 function mouseReleased() {
-  if (movingPiece && movingPiece.white === blackOrWhite && blackOrWhite === whitesMove) {
+
+  const owningMovingPiece = movingPiece && movingPiece.white === blackOrWhite;
+  const rightTurn = blackOrWhite === whitesMove;
+
+  if (owningMovingPiece && rightTurn) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
     if (movingPiece.canMove(x, y, false)) {
-      // Prepare the computer for the move the player is going to make
-      computer.setup(movingPiece.matrixPosition, createVector(x, y), !whitesMove);
+      const location = movingPiece.matrixPosition.copy();
+      const destination = createVector(x, y);
 
       // Move the actual piece on the real board
       movingPiece.move(x, y);
@@ -86,17 +80,10 @@ function mouseReleased() {
       // the state of the board after the human player has made a turn
       board.run(whitesMove);
 
-      // Computer calculates what move to do next
-      const moveArr = computer.calculateBestMove();
-      const piece = board.getPiece(moveArr[0].x, moveArr[0].y);
-      piece.move(moveArr[1].x, moveArr[1].y);
+      movingPiece.moving = false;
 
-      // Switch the turn to the human player
-      whitesMove = !whitesMove;
-
-      // Execute some necessary board functionality, and basically update
-      // the state of the board after the computer has made a turn
-      board.run(whitesMove);
+      computer.setup(location, destination, whitesMove);
+      computer.makeMove(board);
     }
 
     movingPiece.moving = false;
