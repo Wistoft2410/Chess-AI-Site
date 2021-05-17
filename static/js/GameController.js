@@ -94,7 +94,7 @@ function computerMove() {
   loadingElement.classList.remove(invisibleClassName);
 
   setTimeout(() => {
-    const moveInfo = computer.calculateBestMove(whitesMove);
+    const moveInfo = computer.calculateMove(whitesMove);
     const location = moveInfo[0];
     const destination = moveInfo[1];
 
