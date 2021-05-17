@@ -128,8 +128,11 @@ class SimulationBoard extends Board {
   }
 
   calculateScores() {
-    this.whiteScore = this.pieces.filter(piece => piece.white).reduce(this.materialScoreAccumulator);
-    this.blackScore = this.pieces.filter(piece => !piece.white).reduce(this.materialScoreAccumulator);
+    const whitePieces = this.pieces.filter(piece => piece.white);
+    const blackPieces = this.pieces.filter(piece => !piece.white);
+
+    this.whiteScore = whitePieces.length ? whitePieces.reduce(this.materialScoreAccumulator) : 0;
+    this.blackScore = blackPieces.length ? blackPieces.reduce(this.materialScoreAccumulator) : 0;
   }
 
   materialScoreAccumulator(total, piece) {
