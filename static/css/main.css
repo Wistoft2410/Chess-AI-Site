@@ -14,13 +14,21 @@
   border-radius: 1.6rem;
 }
 
-#game-status-message{
-  z-index: 3;
+#game-status-message {
   position: absolute;
   left: 0; 
   right: 0; 
   top: 25%;
   width: 19rem;
+}
+
+#computer-loading-spinner {
+  position: absolute;
+  left: 0; 
+  right: 0; 
+  top: 31%;
+  width: 5rem;
+  height: 5rem;
 }
 
 .proper-icon-size {

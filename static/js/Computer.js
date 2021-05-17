@@ -6,50 +6,27 @@ class AI {
   }
 
   // This method is used for the global "this.board" variable in this class (AI class)
-  setup(location, destination) {
+  setup(location, destination, whitesMove) {
     const piece = this.board.getPiece(location.x, location.y);
     piece.move(destination.x, destination.y);
 
-    this.board.run(!blackOrWhite);
+    this.board.run(whitesMove);
   }
 
-  makeMove(realBoard) {
-    // Computer calculates what move to do next
-    const moveInfo = computer.calculateBestMove();
-    const piece = realBoard.getPiece(moveInfo[0], moveInfo[0]);
-    piece.move(moveInfo[1].x, moveInfo[1].y);
+  calculateBestMove(whitesMove) {
+    const moveInfo = this.minimax(this.board, difficulty, whitesMove)[1];
+    const location = moveInfo[0];
+    const destination = moveInfo[1];
 
-    // Switch the turn to the human player
-    whitesMove = !whitesMove;
+    this.setup(location, destination, !whitesMove);
 
-    // Execute some necessary board functionality, and basically update
-    // the state of the board after the computer has made a turn
-    realBoard.run(whitesMove);
-
-    return whitesMove;
-  }
-
-  calculateBestMove() {
-    const moveInfo = this.minimax(this.board, difficulty, !blackOrWhite)[1];
-
-    const xLocation = moveInfo[1][0].x;
-    const yLocation = moveInfo[1][0].y;
-
-    const xDestination = moveInfo[1][1].x;
-    const yDestination = moveInfo[1][1].y;
-
-    const piece = this.board.getPiece(xLocation, yLocation);
-
-    piece.move(xDestination, xDestination);
-    this.board.run(blackOrWhite);
-
-    return [x, y];
+    return [location, destination];
   }
 
   // We've come to the conclusion that we should deep clone the SimulationBoard class instances,
   // with every new move during the simulation in the minimax algorithm because that is way easier
   // than defining some "undo" move method on the class. Yes the performance might not be
-  // the best but from a maintainability point of view this is pretty good!
+  // the best, but from a maintainability point of view this is pretty good!
   // maximizingPlayer when true is indicating white player and false is indicating black player
   minimax(board, depth, maximizingPlayer) {
     if (depth === 0 || board.checkmate) return [this.evaluateBoardState(board)];
@@ -63,20 +40,12 @@ class AI {
         for (let y = 0; y < 8; y++) {
           for (let piece of board.pieces.filter(piece => piece.white)) {
             if (piece.canMove(x, y, false)) {
-              const childBoard = _.cloneDeep(board);
-              const pieceToMove = childBoard.pieces.find(childPiece => childPiece.matrixPosition.equals(piece.matrixPosition));
 
-              // Save the location (original position)
-              const location = pieceToMove.matrixPosition.copy();
+              const moveInfo = this.computeMove(board, piece, x, y, depth, false);
 
-              pieceToMove.move(x, y);
-              childBoard.run(false);
-
-              const evaluation = this.minimax(childBoard, depth - 1, false)[0];
-
-              if (evaluation > maxEvaluation) {
-                maxEvaluation = evaluation;
-                bestMove = [location, createVector(x, y)];
+              if (moveInfo[0] > maxEvaluation) {
+                maxEvaluation = moveInfo[0];
+                bestMove = [moveInfo[1], createVector(x, y)];
               }
             }
           }
@@ -91,20 +60,12 @@ class AI {
         for (let y = 0; y < 8; y++) {
           for (let piece of board.pieces.filter(piece => !piece.white)) {
             if (piece.canMove(x, y, false)) {
-              const childBoard = _.cloneDeep(board);
-              const pieceToMove = childBoard.pieces.find(childPiece => childPiece.matrixPosition.equals(piece.matrixPosition));
 
-              // Save the location (original position)
-              const location = pieceToMove.matrixPosition.copy();
+              const moveInfo = this.computeMove(board, piece, x, y, depth, true);
 
-              pieceToMove.move(x, y);
-              childBoard.run(true);
-
-              const evaluation = this.minimax(childBoard, depth - 1, true)[0];
-
-              if (evaluation < minEvaluation) {
-                minEvaluation = evaluation;
-                bestMove = [location, createVector(x, y)];
+              if (moveInfo[0] < minEvaluation) {
+                minEvaluation = moveInfo[0];
+                bestMove = [moveInfo[1], createVector(x, y)];
               }
             }
           }
@@ -113,6 +74,21 @@ class AI {
 
       return [minEvaluation, bestMove];
     }
+  }
+
+  computeMove(board, piece, x, y, depth, maximizingPlayer) {
+    const childBoard = _.cloneDeep(board);
+    const pieceToMove = childBoard.pieces.find(childPiece => childPiece.matrixPosition.equals(piece.matrixPosition));
+
+    // Save the location (original position)
+    const location = pieceToMove.matrixPosition.copy();
+
+    pieceToMove.move(x, y);
+    childBoard.run(maximizingPlayer);
+
+    const evaluation = this.minimax(childBoard, depth - 1, maximizingPlayer)[0];
+
+    return [evaluation, location];
   }
 
   evaluateBoardState(board) {

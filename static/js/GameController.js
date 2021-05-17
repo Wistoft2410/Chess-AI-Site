@@ -24,7 +24,7 @@ function setup() {
   board = new Board();
   computer = new AI();
 
-  if (!blackOrWhite) computer.makeMove(board);
+  if (!blackOrWhite) computerMove();
 }
 
 function draw() {
@@ -44,21 +44,17 @@ function draw() {
 }
 
 function mousePressed() {
-  if (mouseButton === LEFT) {
+  if (blackOrWhite === whitesMove && mouseButton === LEFT) {
     const x = floor(mouseX / Board.TILE_SIZE);
     const y = floor(mouseY / Board.TILE_SIZE);
 
     movingPiece = board.getPiece(x, y);
 
-    const owningMovingPiece = movingPiece && movingPiece.white === blackOrWhite;
-    const rightTurn = blackOrWhite === whitesMove;
-
-    if (owningMovingPiece && rightTurn) movingPiece.moving = true;
+    if (movingPiece && movingPiece.white === blackOrWhite) movingPiece.moving = true;
   }
 }
 
 function mouseReleased() {
-
   const owningMovingPiece = movingPiece && movingPiece.white === blackOrWhite;
   const rightTurn = blackOrWhite === whitesMove;
 
@@ -71,21 +67,47 @@ function mouseReleased() {
       const destination = createVector(x, y);
 
       // Move the actual piece on the real board
-      movingPiece.move(x, y);
+      movingPiece.move(destination.x, destination.y);
 
-      // Switch the turn to the computer
+      // Switch the turn to the computer player
       whitesMove = !whitesMove;
 
       // Execute some necessary board functionality, and basically update
       // the state of the board after the human player has made a turn
       board.run(whitesMove);
 
-      movingPiece.moving = false;
-
+      // Simulate the move the player has made by calling the computer setup method
       computer.setup(location, destination, whitesMove);
-      computer.makeMove(board);
-    }
+
+      // Now incorporate the move the computer has chosen onto the real board
+      computerMove();
+    } 
 
     movingPiece.moving = false;
   }
+}
+
+function computerMove() {
+  const loadingElement = document.getElementById("computer-loading-spinner");
+  const invisibleClassName = "invisible";
+
+  loadingElement.classList.remove(invisibleClassName);
+
+  setTimeout(() => {
+    const moveInfo = computer.calculateBestMove(whitesMove);
+    const location = moveInfo[0];
+    const destination = moveInfo[1];
+
+    const piece = board.getPiece(location.x, location.y);
+    piece.move(destination.x, destination.y);
+
+    // Switch the turn to the human player
+    whitesMove = !whitesMove;
+
+    // Execute some necessary board functionality, and basically update
+    // the state of the board after the computer player has made a turn
+    board.run(whitesMove);
+
+    loadingElement.classList.add(invisibleClassName);
+  }, 1000);
 }
